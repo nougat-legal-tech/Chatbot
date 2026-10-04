@@ -128,7 +128,7 @@ RUN node -e 'const fs=require("fs"); const p="package.json"; const pkg=JSON.pars
     hono@4.13.7 \
     multer@2.3.0 \
     nanoid@3.3.18 \
-    undici@8.10.0 \
+    undici@7.29.0 \
     uuid@13.0.1 \
     form-data@4.0.6 \
     protobufjs@8.6.6 \
@@ -182,6 +182,28 @@ RUN set -eux; \
     test ! -e /app/node_modules/@modelcontextprotocol/sdk/node_modules/@hono/node-server; \
     test ! -e /app/node_modules/@opentelemetry/sdk-node/node_modules/@opentelemetry/propagator-jaeger
 
+# packages/api lists the OpenTelemetry SDK as peer dependencies, and
+# --legacy-peer-deps never installs peers, so only api's own copies exist
+# (under /app/api/node_modules). packages/api/dist/telemetry.cjs cannot see
+# them there: task def 173 crash-looped 171 times on "Cannot find module
+# '@opentelemetry/sdk-node'" (live 2026-10-04). Link any copy that is missing
+# from the root; node resolves the link's real path, so its own dependencies
+# still come from api's tree.
+RUN node -e '\
+const fs = require("fs"); \
+const path = require("path"); \
+const names = ["@opentelemetry/api","@opentelemetry/sdk-node","@opentelemetry/resources","@opentelemetry/semantic-conventions","@opentelemetry/winston-transport","@opentelemetry/instrumentation-express","@opentelemetry/instrumentation-http","@opentelemetry/instrumentation-ioredis","@opentelemetry/instrumentation-mongodb","@opentelemetry/instrumentation-mongoose","@opentelemetry/instrumentation-undici"]; \
+for (const name of names) { \
+  try { require.resolve(name, { paths: ["/app/packages/api"] }); continue; } catch (err) {} \
+  const source = path.join("/app/api/node_modules", name); \
+  if (!fs.existsSync(source)) continue; \
+  const target = path.join("/app/node_modules", name); \
+  fs.mkdirSync(path.dirname(target), { recursive: true }); \
+  fs.symlinkSync(source, target, "dir"); \
+  console.log(`linked ${name} for packages/api`); \
+} \
+'
+
 # Guard rail: the surgery above (prune, forced pinned-version reinstall,
 # nested-copy find/rm/cp) has repeatedly broken unrelated production
 # dependencies without failing the build — npm's CMD silently pointed at a
@@ -197,7 +219,7 @@ RUN node -e '\
 const fs = require("fs"); \
 const rootOnly = ["winston","winston-daily-rotate-file","mongodb","hono","multer","undici","uuid","form-data","protobufjs","@opentelemetry/core","module-alias","express","mongoose","axios","dompurify","body-parser","js-yaml","@hono/node-server","@opentelemetry/propagator-jaeger","fast-uri","svgo"]; \
 const otel = ["@opentelemetry/api","@opentelemetry/sdk-node","@opentelemetry/resources","@opentelemetry/semantic-conventions","@opentelemetry/winston-transport","@opentelemetry/instrumentation-express","@opentelemetry/instrumentation-http","@opentelemetry/instrumentation-ioredis","@opentelemetry/instrumentation-mongodb","@opentelemetry/instrumentation-mongoose","@opentelemetry/instrumentation-undici"]; \
-const pathed = [["nodemailer", ["/app/api"]], ["file-type", ["/app/node_modules/stream-file-type"]], ...otel.map((name) => [name, ["/app/api"]])]; \
+const pathed = [["nodemailer", ["/app/api"]], ["file-type", ["/app/node_modules/stream-file-type"]], ...otel.map((name) => [name, ["/app/api"]]), ...otel.map((name) => [name, ["/app/packages/api"]])]; \
 const files = ["/app/global-bundle.pem"]; \
 const failures = []; \
 for (const name of rootOnly) { \
@@ -207,6 +229,12 @@ for (const [name, paths] of pathed) { \
   try { require.resolve(name, { paths }); } catch (err) { failures.push(`${name} (expected under ${paths.join(",")}): ${err.message}`); } \
 } \
 try { require("sharp"); } catch (err) { failures.push(`sharp (native binary load): ${String(err.message).split("\n")[0]}`); } \
+try { \
+  const npmUndici = require("undici/package.json").version; \
+  if (npmUndici.split(".")[0] !== String(process.versions.undici).split(".")[0]) { \
+    failures.push(`undici ${npmUndici} major differs from Node built-in ${process.versions.undici}: model calls pass an npm-undici dispatcher to the built-in fetch and fail with "Connection error" (live 2026-10-04)`); \
+  } \
+} catch (err) { failures.push(`undici version check: ${err.message}`); } \
 for (const file of files) { \
   if (!fs.existsSync(file) || fs.statSync(file).size === 0) { failures.push(`${file}: missing or empty`); } \
 } \

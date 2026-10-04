@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
-import { expect } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import type Result from 'lighthouse/types/lhr/lhr';
 import type { Cookie } from '@playwright/test';
 
@@ -84,11 +84,16 @@ export async function auditPage({
       const output = path.join(directory, `lhr-${run}`);
       for (let attempt = 1; ; attempt++) {
         try {
-          const { stdout } = await exec(process.execPath, [
-            cli,
-            ...flags,
-            `--output-path=${output}`,
-          ]);
+          const { stdout } = await exec(
+            process.execPath,
+            [cli, ...flags, `--output-path=${output}`],
+            {
+              env: {
+                ...process.env,
+                CHROME_PATH: process.env.CHROME_PATH ?? chromium.executablePath(),
+              },
+            },
+          );
           console.log(`Lighthouse run ${run}/${runs} wrote ${output}.report.json`);
           if (stdout.trim()) {
             console.log(stdout);

@@ -11,9 +11,20 @@ const servers = (Array.isArray(mockConfig.webServer) ? mockConfig.webServer : []
 if (servers.length !== 1) {
   throw new Error('Lighthouse requires the isolated single-server harness (E2E_REPLICAS=1).');
 }
+const serverURL = new URL(servers[0].url ?? 'http://127.0.0.1:3080');
+if (serverURL.hostname === 'localhost') {
+  serverURL.hostname = '127.0.0.1';
+}
+const baseURL = serverURL.toString().replace(/\/$/, '');
+const serverHost = serverURL.hostname;
+const serverPort = serverURL.port || (serverURL.protocol === 'https:' ? '443' : '80');
 
 export default defineConfig({
   ...mockConfig,
+  use: {
+    ...mockConfig.use,
+    baseURL,
+  },
   testDir: 'lighthouse',
   outputDir: 'lighthouse/.test-results',
   timeout: 300_000,
@@ -21,9 +32,14 @@ export default defineConfig({
   reporter: [['line']],
   webServer: servers.map((server) => ({
     ...server,
+    url: baseURL,
     timeout: 300_000,
     env: {
       ...server.env,
+      HOST: serverHost,
+      PORT: serverPort,
+      DOMAIN_CLIENT: baseURL,
+      DOMAIN_SERVER: baseURL,
       CONFIG_PATH: path.resolve(__dirname, 'lighthouse/librechat.yaml'),
       ENDPOINTS: 'openAI',
       OPENAI_MODELS: 'gpt-4o-mini',
