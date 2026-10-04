@@ -122,6 +122,16 @@ describe('Telemetry wiring', () => {
 describe('Startup readiness wiring', () => {
   const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 
+  it('activates simulated Mongo latency only after the server is ready', () => {
+    const readyIndex = source.indexOf('serverReady = true;');
+    const latencyIndex = source.indexOf(
+      "process.env.E2E_LATENCY_MONGO_DELAY_ACTIVE = 'true';",
+    );
+
+    expect(readyIndex).toBeGreaterThan(-1);
+    expect(latencyIndex).toBeGreaterThan(readyIndex);
+  });
+
   it('starts code-environment lifecycle reconciliation only after Mongo connects', () => {
     const connectIndex = source.indexOf('await connectDb();');
     const reconcileIndex = source.indexOf('startCodeEnvironmentLifecycleReconciler({ mongoose });');

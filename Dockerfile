@@ -150,6 +150,7 @@ RUN node -e 'const fs=require("fs"); const p="package.json"; const pkg=JSON.pars
     pdfjs-dist@6.2.108 \
     sharp@0.35.4 \
     winston-daily-rotate-file@5.0.0 \
+    @opentelemetry/sdk-node@0.221.0 \
     && rm -rf /app/api/node_modules/sharp /app/packages/api/node_modules/sharp \
     && mkdir -p /app/api/node_modules \
     && cp -a /app/node_modules/sharp /app/api/node_modules/sharp \
@@ -195,7 +196,8 @@ RUN set -eux; \
 RUN node -e '\
 const fs = require("fs"); \
 const rootOnly = ["winston","winston-daily-rotate-file","mongodb","hono","multer","undici","uuid","form-data","protobufjs","@opentelemetry/core","module-alias","express","mongoose","axios","dompurify","body-parser","js-yaml","@hono/node-server","@opentelemetry/propagator-jaeger","fast-uri","svgo"]; \
-const pathed = [["nodemailer", ["/app/api"]], ["file-type", ["/app/node_modules/stream-file-type"]]]; \
+const otel = ["@opentelemetry/api","@opentelemetry/sdk-node","@opentelemetry/resources","@opentelemetry/semantic-conventions","@opentelemetry/winston-transport","@opentelemetry/instrumentation-express","@opentelemetry/instrumentation-http","@opentelemetry/instrumentation-ioredis","@opentelemetry/instrumentation-mongodb","@opentelemetry/instrumentation-mongoose","@opentelemetry/instrumentation-undici"]; \
+const pathed = [["nodemailer", ["/app/api"]], ["file-type", ["/app/node_modules/stream-file-type"]], ...otel.map((name) => [name, ["/app/api"]])]; \
 const files = ["/app/global-bundle.pem"]; \
 const failures = []; \
 for (const name of rootOnly) { \

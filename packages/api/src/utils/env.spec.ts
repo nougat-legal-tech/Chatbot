@@ -1034,6 +1034,7 @@ describe('processMCPEnv', () => {
     process.env.OAUTH_CLIENT_SECRET = 'oauth-client-secret-value';
     process.env.MCP_SERVER_URL = 'https://mcp.example.com';
     process.env.MCP_PROXY_URL = 'http://proxy.example.com:8080';
+    process.env.MCP_SERVER_SECRET = 'mcp-server-secret-value';
   });
 
   afterEach(() => {
@@ -1043,6 +1044,7 @@ describe('processMCPEnv', () => {
     delete process.env.OAUTH_CLIENT_SECRET;
     delete process.env.MCP_SERVER_URL;
     delete process.env.MCP_PROXY_URL;
+    delete process.env.MCP_SERVER_SECRET;
   });
 
   it('should return null/undefined as-is', () => {
@@ -1103,6 +1105,26 @@ describe('processMCPEnv', () => {
       type: 'sse',
       url: 'https://mcp.example.com/sse',
       proxy: 'http://proxy.example.com:8080',
+    });
+  });
+
+  it('should resolve environment variables in streamable HTTP headers', () => {
+    const options: MCPOptions = {
+      type: 'streamable-http',
+      url: 'http://127.0.0.1:8001/mcp',
+      headers: {
+        'x-mcp-secret': '${MCP_SERVER_SECRET}',
+      },
+    };
+
+    const result = processMCPEnv({ options });
+
+    expect(result).toEqual({
+      type: 'streamable-http',
+      url: 'http://127.0.0.1:8001/mcp',
+      headers: {
+        'x-mcp-secret': 'mcp-server-secret-value',
+      },
     });
   });
 

@@ -192,6 +192,27 @@ jobs:
           mcp_container["image"] = new_mcp_image
           mcp_container["memory"] = 256
 
+          # librechat.yaml sends x-mcp-secret: ${MCP_SERVER_SECRET}; the sidecar
+          # 403s every request without it. Give LibreChat the sidecar's secret.
+          mcp_secret = next(
+              (s for s in mcp_container.get("secrets", []) if s.get("name") == "MCP_SERVER_SECRET"),
+              None,
+          )
+          if not mcp_secret:
+              raise SystemExit("MCP sidecar task definition is missing required MCP_SERVER_SECRET")
+          for c in containers:
+              if c is mcp_container or c["image"].rsplit(":", 1)[0] != repo:
+                  continue
+              secrets = c.setdefault("secrets", [])
+              secret_index = next(
+                  (i for i, s in enumerate(secrets) if s.get("name") == "MCP_SERVER_SECRET"),
+                  None,
+              )
+              if secret_index is None:
+                  secrets.append(dict(mcp_secret))
+              else:
+                  secrets[secret_index] = dict(mcp_secret)
+
           # Bump task-level resources so the new sidecar doesn't shrink librechat's
           # existing (unbounded, task-ceiling-shared) headroom.
           if int(td.get("cpu", 0) or 0) < 1024:

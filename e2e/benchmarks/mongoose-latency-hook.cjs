@@ -11,7 +11,9 @@ function patchExec(prototype) {
   const originalExec = prototype.exec;
   Object.defineProperty(prototype, patched, { value: true });
   prototype.exec = async function delayedExec(...args) {
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    if (process.env.E2E_LATENCY_MONGO_DELAY_ACTIVE === 'true') {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
     return originalExec.apply(this, args);
   };
 }

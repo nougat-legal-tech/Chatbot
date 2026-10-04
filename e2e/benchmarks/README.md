@@ -28,7 +28,7 @@ Useful environment variables:
 | `E2E_LATENCY_LABEL`          | `unlabeled` | Identifies the revision or block in the JSON report.        |
 | `E2E_LATENCY_GIT_SHA`        | `unknown`   | Records the tested revision in the JSON report.             |
 | `E2E_LATENCY_STREAM_MODE`    | `in-memory` | Describes the stream backend in the report.                 |
-| `E2E_LATENCY_MONGO_DELAY_MS` | `0`         | Adds a controlled delay before each Mongoose query.         |
+| `E2E_LATENCY_MONGO_DELAY_MS` | `0`         | Adds a controlled delay before each Mongoose query after the app is ready. |
 | `E2E_LATENCY_OUTPUT`         | unset       | Writes the complete report to this path.                    |
 
 To exercise Redis streams, point the E2E server at a disposable Redis instance:

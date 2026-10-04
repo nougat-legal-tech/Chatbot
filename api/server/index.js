@@ -567,6 +567,9 @@ const startServer = async () => {
         );
       }
       serverReady = true;
+      if (process.env.E2E_LATENCY_MONGO_DELAY_MS) {
+        process.env.E2E_LATENCY_MONGO_DELAY_ACTIVE = 'true';
+      }
       logger.info('Server readiness checks passing.');
     } catch (initErr) {
       serverReady = false;

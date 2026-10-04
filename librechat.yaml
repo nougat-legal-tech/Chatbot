@@ -28,4 +28,10 @@ mcpServers:
   juristai-django:
     type: streamable-http
     url: http://127.0.0.1:8001/mcp
+    # The sidecar rejects every request without this shared secret (403
+    # "forbidden"). Without the header LibreChat loaded no MCP tools, so the
+    # agent narrated actions it never ran (live 2026-10-03: "Rivera ... is now
+    # being added to your cases" with no add_case call and no case created).
+    headers:
+      x-mcp-secret: "${MCP_SERVER_SECRET}"
     timeout: 60000
