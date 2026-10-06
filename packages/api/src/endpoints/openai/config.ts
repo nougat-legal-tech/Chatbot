@@ -322,6 +322,17 @@ export function getOpenAIConfig(
     }
   }
 
+  // OpenAI's default fetch may belong to Node's built-in Undici while the
+  // configured dispatcher comes from the npm Undici package. Keep the fetch
+  // implementation and dispatcher in the same Undici instance.
+  if (!configOptions.fetch && configOptions.fetchOptions?.dispatcher) {
+    configOptions.fetch = ((_input: string | URL | Request, init?: RequestInit) =>
+      undiciFetch(_input, {
+        ...(init as Parameters<typeof undiciFetch>[1]),
+        ...(configOptions.fetchOptions as Parameters<typeof undiciFetch>[1]),
+      })) as unknown as Fetch;
+  }
+
   const result: t.OpenAIConfigResult = {
     llmConfig,
     configOptions,

@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { channel } from 'node:diagnostics_channel';
 import { Providers, initializeModel } from '@librechat/agents';
 import type { AddressInfo } from 'node:net';
+import { Agent } from 'undici';
 import type { Dispatcher } from 'undici';
 import { getOpenAIConfig } from './config';
 
@@ -27,6 +28,35 @@ afterEach(() => {
 });
 afterAll(async () => {
   await Promise.all([...dispatchers].map((dispatcher) => dispatcher.destroy()));
+});
+
+it('uses npm Undici fetch with a configured dispatcher when no timeout policy is set', async () => {
+  const server = createServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('ok');
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const baseURL = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const { configOptions } = getOpenAIConfig('local-test-only', {
+    reverseProxyUrl: `${baseURL}/v1`,
+    proxy: 'http://proxy.example.com:8080',
+  });
+  const configuredDispatcher = configOptions!.fetchOptions!.dispatcher as Dispatcher;
+  dispatchers.add(configuredDispatcher);
+  const directDispatcher = new Agent();
+  dispatchers.add(directDispatcher);
+  configOptions!.fetchOptions!.dispatcher = directDispatcher;
+
+  try {
+    expect(configOptions!.fetch).toEqual(expect.any(Function));
+    const response = await configOptions!.fetch!(`${baseURL}/probe`);
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toBe('ok');
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+  }
 });
 
 /** Real sockets and the locked Agent model client: mocked fetch cannot prove Undici's timers. */
