@@ -105,7 +105,10 @@ export async function executeFileSearchQuery({
   const validResults = results.filter((result) => result !== null);
 
   if (validResults.length === 0) {
-    return ['No results found or errors occurred while searching the files.', undefined];
+    return [
+      'File search is temporarily unavailable. Tell the user you could not verify the answer against their files and ask them to retry. Do not present an answer as grounded in those files.',
+      undefined,
+    ];
   }
 
   const formattedResults = validResults
@@ -154,5 +157,15 @@ export async function executeFileSearchQuery({
     })
     .join('\n---\n');
 
-  return [formattedString, { [Tools.file_search]: { sources, fileCitations } }];
+  const failedSearchCount = results.length - validResults.length;
+  const incompleteSearchNote =
+    failedSearchCount > 0
+      ? `\n\nSearch warning: retrieval failed for ${failedSearchCount} of ${files.length} attached files. ` +
+        'Tell the user the results are incomplete and do not imply every file was searched.'
+      : '';
+
+  return [
+    `${formattedString}${incompleteSearchNote}`,
+    { [Tools.file_search]: { sources, fileCitations } },
+  ];
 }
