@@ -380,6 +380,15 @@ describe('Error — provider and model identity', () => {
     expect(screen.getByText(catalog.com_error_upstream_model)).toBeInTheDocument();
     unmount();
 
+    renderError({ type: ErrorTypes.UPSTREAM_MODEL_ERROR, status: 429 }, providerMessage);
+    expect(screen.getByText(catalog.com_error_model_rate_limit)).toBeInTheDocument();
+    expect(
+      screen.queryByText(localized('com_error_upstream_model_status', '429')),
+    ).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('OpenAI');
+    expectReadable();
+    unmount();
+
     renderError({ type: ErrorTypes.UPSTREAM_MODEL_ERROR, status: 529 }, providerMessage);
     expect(
       screen.getByText(localized('com_error_upstream_model_status', '529')),

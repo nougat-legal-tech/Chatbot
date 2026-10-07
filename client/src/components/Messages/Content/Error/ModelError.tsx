@@ -63,9 +63,11 @@ export default function ModelError({ json, message }: ErrorRendererProps) {
    */
   const status = readNumber(json, 'status');
   const headline =
-    status != null
-      ? localize('com_error_upstream_model_status', { 0: status })
-      : localize('com_error_upstream_model');
+    errorKey === ErrorTypes.UPSTREAM_MODEL_ERROR && status === 429
+      ? localize('com_error_model_rate_limit')
+      : status != null
+        ? localize('com_error_upstream_model_status', { 0: status })
+        : localize('com_error_upstream_model');
   return (
     <ErrorWithDetail
       headline={headline}
