@@ -36,6 +36,7 @@ const {
 } = require('~/models');
 const { getActionFlowStateManager } = require('~/config');
 const { getLogStores } = require('~/cache');
+const { getChatOAuthOrigin } = require('~/server/utils/chatOAuthOrigin');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const toolNameRegex = /^[a-zA-Z0-9_-]+$/;
@@ -44,7 +45,7 @@ const replaceSeparatorRegex = new RegExp(actionDomainSeparator, 'g');
 
 const CHAT_MINTED_TOKEN_ISSUER = 'librechat';
 const CHAT_MINTED_TOKEN_TTL = '5m';
-const DEFAULT_CHAT_MINTED_ACTION_DOMAINS = 'juristai.org';
+const DEFAULT_CHAT_MINTED_ACTION_DOMAINS = 'juristai.org,nougat.law';
 
 /**
  * Domains whose actions receive a per-user chat-minted JWT when no explicit
@@ -282,6 +283,7 @@ async function createActionTool({
 
             const action_id = action.action_id;
             const identifier = `${userId}:${action.action_id}`;
+            const oauthOrigin = getChatOAuthOrigin(res?.req);
             const requestLogin = async () => {
               const { args: _args, stepId, ...toolCall } = config.toolCall ?? {};
               if (!stepId) {
@@ -295,7 +297,7 @@ async function createActionTool({
 
               const stateToken = jwt.sign(statePayload, JWT_SECRET, { expiresIn: '10m' });
               try {
-                const redirectUri = `${process.env.DOMAIN_CLIENT}/api/actions/${action_id}/oauth/callback`;
+                const redirectUri = `${oauthOrigin}/api/actions/${action_id}/oauth/callback`;
                 const params = new URLSearchParams({
                   client_id: metadata.oauth_client_id,
                   scope: metadata.auth.scope,
@@ -350,7 +352,7 @@ async function createActionTool({
                     state: stateToken,
                     userId: userId,
                     client_url: metadata.auth.client_url,
-                    redirect_uri: `${process.env.DOMAIN_SERVER}/api/actions/${action_id}/oauth/callback`,
+                    redirect_uri: `${oauthOrigin}/api/actions/${action_id}/oauth/callback`,
                     token_exchange_method: metadata.auth.token_exchange_method,
                     allowedAddresses,
                     /** Encrypted values */

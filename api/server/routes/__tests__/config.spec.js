@@ -88,6 +88,7 @@ afterEach(() => {
   delete process.env.ALLOW_SOCIAL_LOGIN;
   delete process.env.ALLOW_PASSWORD_RESET;
   delete process.env.DOMAIN_SERVER;
+  delete process.env.CHAT_ACTION_OAUTH_ORIGINS;
   delete process.env.GOOGLE_CLIENT_ID;
   delete process.env.GOOGLE_CLIENT_SECRET;
   delete process.env.OPENID_CLIENT_ID;
@@ -266,6 +267,20 @@ describe('GET /api/config', () => {
       expect(response.body.appTitle).toBe('Test App');
       expect(response.body).toHaveProperty('emailLoginEnabled');
       expect(response.body).toHaveProperty('serverDomain');
+    });
+
+    it('uses the allowlisted host for public OAuth links and falls back for unknown hosts', async () => {
+      mockGetAppConfig.mockResolvedValue(baseAppConfig);
+      const app = createApp(null);
+
+      const nougatResponse = await request(app).get('/api/config').set('Host', 'chat.nougat.law');
+      expect(nougatResponse.body.serverDomain).toBe('https://chat.nougat.law');
+
+      process.env.DOMAIN_SERVER = 'https://chat.juristai.org';
+      const unknownHostResponse = await request(app)
+        .get('/api/config')
+        .set('Host', 'attacker.example');
+      expect(unknownHostResponse.body.serverDomain).toBe('https://chat.juristai.org');
     });
 
     it('should omit CloudFront cookie refresh from unauthenticated response (#12688)', async () => {

@@ -39,13 +39,20 @@ jest.mock('~/models', () => ({
   deleteActions: jest.fn(),
   deleteAssistant: jest.fn(),
 }));
-jest.mock('~/config', () => ({ getFlowStateManager: jest.fn() }));
+jest.mock('~/config', () => ({
+  getFlowStateManager: jest.fn(),
+  getActionFlowStateManager: jest.fn(),
+}));
 jest.mock('~/cache', () => ({ getLogStores: jest.fn(() => ({})) }));
+const { getActionFlowStateManager } = require('~/config');
+const { findToken } = require('~/models');
+const { sendEvent } = require('@librechat/api');
 const {
   createActionTool,
   isChatMintedActionDomain,
   generateChatMintedToken,
 } = require('../ActionService');
+const { getChatOAuthOrigin } = require('~/server/utils/chatOAuthOrigin');
 
 /**
  * Real-logic tests for per-user chat-minted JWT injection in createActionTool._call.
@@ -80,6 +87,9 @@ describe('chat-minted action auth', () => {
   beforeEach(() => {
     process.env = { ...OLD_ENV, CHAT_SECRET: 'test-chat-secret' };
     delete process.env.CHAT_MINTED_ACTION_DOMAINS;
+    delete process.env.CHAT_ACTION_OAUTH_ORIGINS;
+    delete process.env.DOMAIN_CLIENT;
+    delete process.env.DOMAIN_SERVER;
   });
 
   afterAll(() => {
@@ -93,6 +103,13 @@ describe('chat-minted action auth', () => {
       expect(isChatMintedActionDomain('api-dev.juristai.org')).toBe(true);
     });
 
+    it('matches nougat.law and its subdomains by default', () => {
+      expect(isChatMintedActionDomain('https://nougat.law')).toBe(true);
+      expect(isChatMintedActionDomain('https://api.nougat.law')).toBe(true);
+      expect(isChatMintedActionDomain('api-dev.nougat.law')).toBe(true);
+      expect(isChatMintedActionDomain('https://notnougat.law')).toBe(false);
+    });
+
     it('rejects external and suffix-spoofed domains', () => {
       expect(isChatMintedActionDomain('https://api.example.com')).toBe(false);
       expect(isChatMintedActionDomain('https://notjuristai.org')).toBe(false);
@@ -104,6 +121,31 @@ describe('chat-minted action auth', () => {
       process.env.CHAT_MINTED_ACTION_DOMAINS = 'internal.example.com';
       expect(isChatMintedActionDomain('https://internal.example.com')).toBe(true);
       expect(isChatMintedActionDomain('https://api-dev.juristai.org')).toBe(false);
+    });
+  });
+
+  describe('getChatOAuthOrigin', () => {
+    it('uses the allowlisted Nougat origin that started the chat action flow', () => {
+      expect(getChatOAuthOrigin({ headers: { host: 'chat.nougat.law' } })).toBe(
+        'https://chat.nougat.law',
+      );
+    });
+
+    it('keeps existing JuristAI chat flows on their original host', () => {
+      expect(getChatOAuthOrigin({ headers: { host: 'chat.juristai.org' } })).toBe(
+        'https://chat.juristai.org',
+      );
+    });
+
+    it('ignores an untrusted browser origin and uses the configured fallback', () => {
+      process.env.DOMAIN_SERVER = 'https://chat.juristai.org/';
+      expect(getChatOAuthOrigin({ headers: { host: 'evil.example', origin: 'https://evil.example' } })).toBe(
+        'https://chat.juristai.org',
+      );
+    });
+
+    it('uses the local origin when no public origin or fallback is configured', () => {
+      expect(getChatOAuthOrigin(undefined)).toBe('http://localhost:3080');
     });
   });
 
@@ -200,5 +242,49 @@ describe('chat-minted action auth', () => {
       expect(executor.execute).not.toHaveBeenCalled();
       expect(result).toBe('error:Chat authentication unavailable');
     });
+
+    it.each(['https://chat.juristai.org', 'https://chat.nougat.law'])(
+      'uses the initiating %s origin for both OAuth redirect URI stages',
+      async (origin) => {
+        const flowManager = {
+          createFlowWithHandler: jest.fn(async (_identifier, _type, handler) => handler()),
+          createFlow: jest.fn(async () => ({ access_token: 'access-token' })),
+        };
+        getActionFlowStateManager.mockReturnValue(flowManager);
+        findToken.mockResolvedValue(null);
+
+        const tool = await createActionTool({
+          userId: chatUser.id,
+          user: chatUser,
+          action: {
+            action_id: 'action-123',
+            metadata: {
+              domain: 'https://api.example.com',
+              auth: {
+                type: 'oauth',
+                authorization_url: 'https://provider.example/oauth/authorize',
+                scope: 'read',
+                client_url: 'https://provider.example/oauth/token',
+              },
+            },
+          },
+          encrypted: { oauth_client_id: 'client-id', oauth_client_secret: 'client-secret' },
+          res: { req: { headers: { host: new URL(origin).host, origin } } },
+          requestBuilder: makeRequestBuilder().requestBuilder,
+        });
+
+        await tool._call({}, {
+          toolCall: { stepId: 'step-1', id: 'call-1' },
+          metadata: { thread_id: 'thread-1', run_id: 'run-1' },
+        });
+
+        const callbackUrl = `${origin}/api/actions/action-123/oauth/callback`;
+        const sentEvent = sendEvent.mock.calls.at(-1)[1];
+        const authorizationUrl = new URL(sentEvent.data.delta.auth);
+        const flowMetadata = flowManager.createFlow.mock.calls[0][2];
+        expect(authorizationUrl.searchParams.get('redirect_uri')).toBe(callbackUrl);
+        expect(flowMetadata.redirect_uri).toBe(callbackUrl);
+      },
+    );
   });
 });

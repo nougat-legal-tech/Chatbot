@@ -22,6 +22,7 @@ const { hasCapability, hasConfigCapability } = require('~/server/middleware/role
 const { getLdapConfig } = require('~/server/services/Config/ldap');
 const { getRumConfig } = require('~/server/services/Config/rum');
 const { getAppConfig } = require('~/server/services/Config/app');
+const { getChatOAuthOrigin } = require('~/server/utils/chatOAuthOrigin');
 
 const router = express.Router();
 const { accessIpLimiter, accessUserLimiter } = createAccessLimiters();
@@ -57,7 +58,7 @@ function isBirthday() {
  *
  * See client consumers under `client/src/components/Auth/` and `client/src/routes/Layouts/Startup.tsx`.
  */
-function buildPreLoginPayload() {
+function buildPreLoginPayload(req) {
   const isOpenIdEnabled =
     !!process.env.OPENID_CLIENT_ID &&
     (isEnabled(process.env.OPENID_USE_PKCE) || !!process.env.OPENID_CLIENT_SECRET?.trim()) &&
@@ -91,7 +92,7 @@ function buildPreLoginPayload() {
     samlLoginEnabled: !isOpenIdEnabled && isSamlEnabled,
     samlLabel: process.env.SAML_BUTTON_LABEL,
     samlImageUrl: process.env.SAML_IMAGE_URL,
-    serverDomain: process.env.DOMAIN_SERVER || 'http://localhost:3080',
+    serverDomain: getChatOAuthOrigin(req),
     emailLoginEnabled,
     registrationEnabled: !ldap?.enabled && isEnabled(process.env.ALLOW_REGISTRATION),
     socialLoginEnabled: isEnabled(process.env.ALLOW_SOCIAL_LOGIN),
@@ -213,7 +214,7 @@ function buildCloudFrontStartupConfig() {
 
 router.get('/', accessIpLimiter, accessUserLimiter, async function (req, res) {
   try {
-    const preLoginPayload = buildPreLoginPayload();
+    const preLoginPayload = buildPreLoginPayload(req);
     const publicSharePayload = buildPublicSharePayload();
     const rum = getRumConfig();
 
