@@ -8,7 +8,37 @@ import type { IJobStore, IJobStoreV2 } from './interfaces/IJobStore';
  * while rejecting an implementation that cannot provide the atomic guarantees
  * required by the current generation manager.
  */
-export const JOB_STORE_V2_REQUIRED_METHODS = [
+type JobStoreV2RequiredMethodTuple = readonly [
+  'acknowledgeReplacedJobs',
+  'markProviderExecutionDrained',
+  'beginProviderExecution',
+  'getCleanupBlockingJobIdsByUser',
+  'finalizeTerminalPersistence',
+  'transitionStatusAndDrainSteers',
+  'takeoverIdempotencyKey',
+  'markIdempotencyKeyStarted',
+  'adoptIdempotencyKeyForJob',
+  'enqueueSteerVersioned',
+  'enqueueSteerWithReceipt',
+  'getSteerReceipt',
+  'restoreClaimedSteers',
+  'admitTerminalSteers',
+  'peekClaimedSteers',
+  'armSteer',
+  'armSteerVersioned',
+  'downgradeSteerPreempts',
+  'claimParkedSteersDetailed',
+  'consumeParkedSteer',
+  'discardSteerLeftover',
+  'settleEarlyBufferRecovery',
+  'finalizeEarlyBufferOverflow',
+  'hasSubscriberAttached',
+  'claimFirstSubscriber',
+  'detachSubscriber',
+  'hasActiveSubscriber',
+];
+
+export const JOB_STORE_V2_REQUIRED_METHODS: JobStoreV2RequiredMethodTuple = [
   'acknowledgeReplacedJobs',
   'markProviderExecutionDrained',
   'beginProviderExecution',
@@ -38,7 +68,7 @@ export const JOB_STORE_V2_REQUIRED_METHODS = [
   'hasActiveSubscriber',
 ] as const satisfies ReadonlyArray<keyof IJobStoreV2>;
 
-export type JobStoreV2RequiredMethod = (typeof JOB_STORE_V2_REQUIRED_METHODS)[number];
+export type JobStoreV2RequiredMethod = JobStoreV2RequiredMethodTuple[number];
 
 type MethodKeys<T> = {
   [Key in keyof T]-?: NonNullable<T[Key]> extends (...args: never[]) => unknown ? Key : never;
