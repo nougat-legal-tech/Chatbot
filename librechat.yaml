@@ -34,4 +34,8 @@ mcpServers:
     # being added to your cases" with no add_case call and no case created).
     headers:
       x-mcp-secret: "${MCP_SERVER_SECRET}"
+    # Auth is the shared-secret header, never OAuth. Without this, startup
+    # probes the URL with no headers, gets the secret gate's 403, marks the
+    # server OAuth-required and loads 0 tools (live 2026-10-07, task def 177).
+    requiresOAuth: false
     timeout: 60000
