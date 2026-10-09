@@ -17,6 +17,7 @@ function registerBackendAlias() {
 
 export default async function cleanupUser(user: TUser) {
   applyRuntimeEnv();
+  process.env.MONGO_AUTO_INDEX ??= 'false';
   registerBackendAlias();
   /* eslint-disable @typescript-eslint/no-require-imports */
   const { connectDb } = require('@librechat/backend/db/connect');
