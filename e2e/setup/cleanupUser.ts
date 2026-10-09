@@ -37,9 +37,10 @@ export default async function cleanupUser(user: TUser) {
   /* eslint-enable @typescript-eslint/no-require-imports */
 
   const { email } = user;
+  let db: Awaited<ReturnType<typeof connectDb>> | undefined;
   try {
     console.log('🤖: global teardown has been started');
-    const db = await connectDb();
+    db = await connectDb();
     console.log('🤖:  ✅  Connected to Database');
 
     const foundUser = await findUser({ email });
@@ -52,7 +53,7 @@ export default async function cleanupUser(user: TUser) {
     console.log('🤖:  ✅  Found user in Database');
 
     // Delete all conversations & associated messages
-    const { deletedCount, messages } = await deleteConvos(userId, {}).catch((error) => {
+    const { deletedCount, messages } = await deleteConvos(userId, {}).catch((error: unknown) => {
       if (error instanceof Error && error.message.includes('Conversation not found')) {
         console.log('🤖:  ⚠️  No conversations found for user');
         return { deletedCount: 0, messages: { deletedCount: 0 } };
@@ -85,9 +86,12 @@ export default async function cleanupUser(user: TUser) {
 
     console.log('🤖:  ✅  Deleted user from Database');
 
-    await db.connection.close();
   } catch (error) {
     console.error('Error:', error);
+  } finally {
+    await db?.connection.close().catch((error: unknown) => {
+      console.error('Error closing database connection:', error);
+    });
   }
 }
 
