@@ -206,3 +206,12 @@ scripts/activity-labels/results/
 /.lighthouse/
 /e2e/lighthouse/.test-results/
 /.qa-tmp
+/.auth-mongo-direct-b4dd27368e6b42598320542ac75a2057
+/mongo-mem-52V2M8
+/mongo-mem-id8W60
+/mongo-mem-iYLK7G
+/playwright-transform-cache/ef
+/playwright-transform-cache
+/mongo-mem-sn3wFw
+/mongo-mem-u3eQnL
+/mongo-mem-UCpOlh

@@ -1,8 +1,4 @@
 import { expect, test } from '@playwright/test';
-import type { APIRequestContext } from '@playwright/test';
-import type { User } from '../../types';
-import { getSecondaryE2EUser } from '../../setup/users.mock';
-import cleanupUser from '../../setup/cleanupUser';
 import { NEW_CHAT_PATH } from './helpers';
 
 type AuthRecoveryTestEvent = {
@@ -25,30 +21,6 @@ function createJwt(expiresAtMs: number) {
   return `header.${payload}.signature`;
 }
 
-async function getIsolatedStorageState(request: APIRequestContext, user: User) {
-  await cleanupUser(user);
-
-  const registerResponse = await request.post('/api/auth/register', {
-    data: {
-      email: user.email,
-      name: user.name,
-      password: user.password,
-      confirm_password: user.password,
-    },
-  });
-  expect(registerResponse.ok()).toBeTruthy();
-
-  const loginResponse = await request.post('/api/auth/login', {
-    data: {
-      email: user.email,
-      password: user.password,
-    },
-  });
-  expect(loginResponse.ok()).toBeTruthy();
-
-  return request.storageState();
-}
-
 test.describe('auth session', () => {
   test('session persists across a full page reload', async ({ page }) => {
     await page.goto(NEW_CHAT_PATH, { timeout: 10000 });
@@ -62,42 +34,26 @@ test.describe('auth session', () => {
     await expect(page.getByRole('textbox', { name: 'Message input' })).toBeVisible();
   });
 
-  test('logout ends the session and protects authenticated routes', async ({
-    request,
-    browser,
-    baseURL,
-  }) => {
+  test('logout ends the session and protects authenticated routes', async ({ page, baseURL }) => {
     test.setTimeout(90000);
     if (typeof baseURL !== 'string') {
       throw new Error('baseURL must be configured for mock auth tests');
     }
 
-    const user = getSecondaryE2EUser();
-    const context = await browser.newContext({
-      storageState: await getIsolatedStorageState(request, user),
-      baseURL,
-    });
-    await context.addInitScript(() => {
-      localStorage.setItem('navVisible', 'true');
-    });
-    const page = await context.newPage();
+    await page.goto(NEW_CHAT_PATH, { timeout: 10000 });
+    await expect(page).not.toHaveURL(/\/login/);
 
-    try {
-      await page.goto(NEW_CHAT_PATH, { timeout: 10000 });
-      await expect(page).not.toHaveURL(/\/login/);
+    const accountSettings = page.getByTestId('nav-user');
+    await expect(accountSettings).toBeVisible();
+    await accountSettings.click();
+    await expect(accountSettings).toHaveAttribute('aria-expanded', 'true');
+    await page.getByRole('menuitem', { name: 'Log out' }).click();
 
-      await page.getByTestId('nav-user').click();
-      await page.getByRole('menuitem', { name: 'Log out' }).click();
+    await page.waitForURL(/\/login/, { timeout: 10000 });
+    await expect(page.getByLabel('Email')).toBeVisible();
 
-      await page.waitForURL(/\/login/, { timeout: 10000 });
-      await expect(page.getByLabel('Email')).toBeVisible();
-
-      await page.goto(NEW_CHAT_PATH, { timeout: 10000 });
-      await expect(page).toHaveURL(/\/login/);
-    } finally {
-      await context.close().catch(() => undefined);
-      await cleanupUser(user);
-    }
+    await page.goto(NEW_CHAT_PATH, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/login/);
   });
 
   test('recovers from an expired bearer during app bootstrap without redirect looping', async ({

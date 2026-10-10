@@ -17,12 +17,17 @@ for (const server of webServers) {
       server.url = localBaseURL;
       server.env = {
         ...server.env,
+        HOST: '127.0.0.1',
         E2E_USE_MEMORY_MONGO: process.env.E2E_USE_MEMORY_MONGO ?? 'false',
         SESSION_EXPIRY: '600000',
       };
     }
   }
 }
+
+// The auth spec needs only the app server; keep the mock model and MCP
+// fixtures from the full suite out of this auth-only run.
+config.webServer = webServers.filter((server) => server?.url === localBaseURL);
 
 config.globalSetup = require.resolve('./setup/authenticate-only');
 
