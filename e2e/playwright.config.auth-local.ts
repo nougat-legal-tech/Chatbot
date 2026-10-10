@@ -15,7 +15,11 @@ for (const server of webServers) {
     server.reuseExistingServer = true;
     if (server.url === originalBaseURL) {
       server.url = localBaseURL;
-      server.env = { ...server.env, E2E_USE_MEMORY_MONGO: 'false', SESSION_EXPIRY: '600000' };
+      server.env = {
+        ...server.env,
+        E2E_USE_MEMORY_MONGO: process.env.E2E_USE_MEMORY_MONGO ?? 'false',
+        SESSION_EXPIRY: '600000',
+      };
     }
   }
 }
