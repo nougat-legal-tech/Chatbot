@@ -215,3 +215,10 @@ scripts/activity-labels/results/
 /mongo-mem-sn3wFw
 /mongo-mem-u3eQnL
 /mongo-mem-UCpOlh
+/.auth-mongo-debug-f4a78d887264411aaa360e0828ceebe3
+/.auth-mongo-edge-d4538e65999246b7a91028b7288b74c4
+/.auth-mongo-final-3843246eca45419cbc757b115edf3b9d
+/.auth-mongo-static-fc3e5061006b4a48a71a2b3fe9869bba
+/.auth-mongo-repro-926df317e5e444378320df76baf7f207
+/.auth-mongo-trace-d6ebe8b333ee41fb9955f6d5fde82172
+/.auth-mongo-elevated-bb05e4134ca04f8e9f6acc37c860d9cc

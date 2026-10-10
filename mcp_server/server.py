@@ -1346,8 +1346,8 @@ async def connect_scheduling_conferencing(ctx: Context, app_id: str, set_as_defa
 
 
 @mcp.tool(description="Disconnect a scheduling conferencing connection (e.g. Zoom).")
-async def disconnect_scheduling_conferencing(ctx: Context, connection_id: str) -> dict:
-    return await _post(ctx, f"/api/integrations/conferencing/{connection_id}/disconnect/", {})
+async def disconnect_scheduling_conferencing(ctx: Context, connection_id: str, app_id: str) -> dict:
+    return await _post(ctx, f"/api/integrations/conferencing/{connection_id}/disconnect/", {"appId": app_id})
 
 
 @mcp.tool(description="Create a new scheduling event type (a bookable meeting kind).")
