@@ -16,6 +16,7 @@ config.use = {
 for (const server of webServers) {
   if (server) {
     server.reuseExistingServer = true;
+    server.timeout = Math.max(server.timeout ?? 0, 600_000);
     if (server.url === originalBaseURL) {
       server.url = localBaseURL;
       server.env = {

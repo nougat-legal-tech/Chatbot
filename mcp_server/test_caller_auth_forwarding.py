@@ -52,6 +52,21 @@ def test_mcp_case_tool_passes_caller_token_and_case_scope_to_django(monkeypatch)
     ]
 
 
+def test_mcp_zoom_disconnect_forwards_selected_app_scope(monkeypatch):
+    calls = []
+    monkeypatch.setattr(server, "_client", lambda _token: _Client(calls))
+    ctx = SimpleNamespace(request_context=SimpleNamespace(request=SimpleNamespace(headers={})))
+
+    result = asyncio.run(
+        server.disconnect_scheduling_conferencing(ctx, "zoom-2", app_id="4"),
+    )
+
+    assert result == {"ok": True}
+    assert calls == [
+        ("POST", "/api/integrations/conferencing/zoom-2/disconnect/", {"content": '{"appId": "4"}'}),
+    ]
+
+
 def test_mcp_client_does_not_create_an_authorization_header_without_a_caller_token():
     client = server._client(None)
 

@@ -587,6 +587,45 @@ describe('axios 401 interceptor — Authorization header guard', () => {
     expect(getCallsForUrl('/api/projects')[0][0].headers?.Authorization).toBe('Bearer new-token');
   });
 
+  it('reuses a newer bearer when a delayed request returns 401 after recovery finished', async () => {
+    expect.assertions(4);
+    setTokenHeader('old-token');
+    const delayedProjectResponse = createDeferred<never>();
+    let delayedProjectConfig: RetryableAdapterConfig | undefined;
+
+    mockAdapter.mockImplementation((config: RetryableAdapterConfig) => {
+      if (config.url?.includes('/api/auth/refresh') === true) {
+        return createAdapterResponse(config, { token: 'new-token' });
+      }
+      if (config.url === '/api/projects' && config._retry !== true) {
+        delayedProjectConfig = config;
+        return delayedProjectResponse.promise;
+      }
+      if (config._retry === true) {
+        return createAdapterResponse(config, { ok: true });
+      }
+      return create401Error(config);
+    });
+
+    const delayedProjectRequest = axios.get('/api/projects', {
+      headers: { Authorization: 'Bearer old-token' },
+    });
+    await waitForAdapterCall('/api/projects');
+    const recoveredRequest = await axios.get('/api/messages');
+
+    expect(recoveredRequest.data).toEqual({ ok: true });
+    expect(getCallsForUrl('/api/auth/refresh')).toHaveLength(1);
+
+    delayedProjectResponse.reject({
+      response: { status: 401 },
+      config: delayedProjectConfig,
+    });
+    const delayedResponse = await delayedProjectRequest;
+
+    expect(delayedResponse.data).toEqual({ ok: true });
+    expect(getCallsForUrl('/api/auth/refresh')).toHaveLength(1);
+  });
+
   it('redirects once when a burst of 401s cannot refresh a token', async () => {
     expect.assertions(3);
     setTokenHeader('expired-token');

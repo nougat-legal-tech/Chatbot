@@ -246,6 +246,20 @@ const getBearerToken = () => {
   return authorization.slice('Bearer '.length);
 };
 
+const getRequestBearerToken = (config: AxiosRequestConfig) => {
+  const headers = config.headers as
+    | (Record<string, unknown> & { get?: (name: string) => unknown })
+    | undefined;
+  const authorization =
+    typeof headers?.get === 'function'
+      ? headers.get('Authorization')
+      : (headers?.Authorization ?? headers?.authorization);
+  if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
+    return null;
+  }
+  return authorization.slice('Bearer '.length);
+};
+
 const getJwtExpiryMs = (token: string) => {
   const payload = token.split('.')[1];
   if (!payload) {
@@ -386,6 +400,21 @@ if (typeof window !== 'undefined') {
       }
 
       if (error.response.status === 401 && !originalRequest._retry) {
+        const requestToken = getRequestBearerToken(originalRequest);
+        const currentToken = getBearerToken();
+        const currentExpiry = currentToken ? getJwtExpiryMs(currentToken) : null;
+        const currentTokenIsUsable =
+          currentToken != null && (currentExpiry == null || currentExpiry > Date.now());
+        if (requestToken && currentTokenIsUsable && currentToken !== requestToken) {
+          // A delayed 401 may belong to a request sent with the previous token
+          // after another request already refreshed it. Retry with the current
+          // bearer instead of starting a second refresh for a session that is
+          // already recovered.
+          originalRequest._retry = true;
+          setRequestAuthorizationHeader(originalRequest, currentToken);
+          return await axios(originalRequest);
+        }
+
         const hasActiveRecovery = getAuthRecoveryState().refreshPromise != null;
         if (!hasActiveRecovery) {
           console.warn('401 error, refreshing token');
