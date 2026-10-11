@@ -52,6 +52,35 @@ def test_mcp_case_tool_passes_caller_token_and_case_scope_to_django(monkeypatch)
     ]
 
 
+def test_mcp_create_new_unfiled_matter_forwards_without_case_or_docket_id(monkeypatch):
+    calls = []
+    monkeypatch.setattr(server, "_client", lambda _token: _Client(calls))
+    ctx = SimpleNamespace(request_context=SimpleNamespace(request=SimpleNamespace(headers={})))
+
+    result = asyncio.run(
+        server.create_new_case(
+            ctx,
+            app_id="2",
+            case_name="Rowan Glass LLC v. Alpine Demo Services, Inc.",
+            user_id="user-1",
+        )
+    )
+
+    assert result == {"ok": True}
+    assert calls == [
+        (
+            "POST",
+            "/api/create-new-case/",
+            {
+                "content": (
+                    '{"appId": "2", "caseName": '
+                    '"Rowan Glass LLC v. Alpine Demo Services, Inc.", "userId": "user-1"}'
+                )
+            },
+        ),
+    ]
+
+
 def test_mcp_zoom_disconnect_forwards_selected_app_scope(monkeypatch):
     calls = []
     monkeypatch.setattr(server, "_client", lambda _token: _Client(calls))

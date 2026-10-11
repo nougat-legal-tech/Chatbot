@@ -23,6 +23,8 @@ for (const server of webServers) {
         ...server.env,
         HOST: '127.0.0.1',
         E2E_USE_MEMORY_MONGO: process.env.E2E_USE_MEMORY_MONGO ?? 'false',
+        MONGO_AUTO_INDEX: 'false',
+        JURISTAI_ENSURE_AGENT_ACTION: 'false',
         SESSION_EXPIRY: '600000',
       };
     }

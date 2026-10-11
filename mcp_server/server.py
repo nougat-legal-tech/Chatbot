@@ -1722,7 +1722,13 @@ async def series_ai_resolve_pending_action(
     return await _post(ctx, f"/api/pending-actions/{request_id}/resolve/", payload)
 
 
-@mcp.tool(description="Create a brand-new case record.")
+@mcp.tool(
+    description=(
+        "Create a new matter. Always provide app_id, case_name, and user_id. "
+        "For a PACER matter, provide docket_id; for a caller-assigned matter ID, provide case_id. "
+        "For a new unfiled matter with neither ID yet, omit both and Django will mint a case ID."
+    )
+)
 async def create_new_case(  # noqa: PLR0913 - MCP tool schema is intentionally flat
     ctx: Context,
     app_id: str,

@@ -1195,7 +1195,7 @@
     "/api/core/create-new-case/": {
       "post": {
         "operationId": "create-new-case",
-        "description": "Starts the create-new-case Step Function state machine, which provisions DynamoDB, S3, an assistant thread, docket classification, document ingestion, case summary, action items, recommendations, deadlines insight, and a welcome email. Accepts either docketId (PACER) or caseId (manual) plus a caseName. Exposed to the LibreChat assistant and intent handler as a callable tool.",
+        "description": "Starts the create-new-case Step Function state machine, which provisions DynamoDB, S3, an assistant thread, docket classification, document ingestion, case summary, action items, recommendations, deadlines insight, and a welcome email. Always provide appId, caseName, and userId. For a PACER matter, provide docketId; for a caller-assigned matter ID, provide caseId. For a new unfiled matter with no docketId or caseId yet, omit both and the service will mint a caseId. Exposed to the LibreChat assistant and intent handler as a callable tool.",
         "summary": "Create a new case and provision its full AI workflow.",
         "tags": [
           "llm-tools"

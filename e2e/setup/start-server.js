@@ -170,6 +170,9 @@ async function maybeStartMemoryMongo() {
     instance: {
       dbName,
       ip: '127.0.0.1',
+      // A local system binary can take longer than the package's 10s default
+      // on Windows; keep the auth/E2E database isolated while allowing startup.
+      launchTimeout: 60_000,
     },
   });
   process.env.MONGO_URI = withDbName(mongoServer.getUri(), dbName);
