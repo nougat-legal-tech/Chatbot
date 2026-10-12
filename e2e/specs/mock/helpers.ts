@@ -56,9 +56,8 @@ export async function selectMockEndpoint(page: Page, endpoint: MockEndpoint) {
   await trigger.click();
   await page.getByRole('option', { name: endpoint.label }).click();
   const modelOption = page.getByRole('option', { name: endpoint.model, exact: true });
-  if (await modelOption.isVisible({ timeout: 1000 }).catch(() => false)) {
-    await modelOption.click();
-  }
+  await expect(modelOption).toBeVisible({ timeout: 10_000 });
+  await modelOption.click();
   await expect(trigger).not.toHaveText('Select a model');
 }
 
@@ -454,10 +453,12 @@ export function waitForUpload(page: Page) {
 
 /** Attach a file via the unified single button (no tool resource). */
 export async function uploadViaUnifiedButton(page: Page, file: AttachFile) {
+  const attachButton = page.locator('#attach-file-button');
+  await expect(attachButton).toBeEnabled();
   const uploadResponse = waitForUpload(page);
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.locator('#attach-file-button').click(),
+    attachButton.click(),
   ]);
   await fileChooser.setFiles({
     name: file.name,
@@ -469,8 +470,10 @@ export async function uploadViaUnifiedButton(page: Page, file: AttachFile) {
 
 /** Attach a file via a named option in the legacy 3-way dropdown. */
 export async function uploadViaLegacyOption(page: Page, optionName: string, file: AttachFile) {
+  const attachMenuButton = page.locator('#attach-file-menu-button');
+  await expect(attachMenuButton).toBeEnabled();
   const uploadResponse = waitForUpload(page);
-  await page.locator('#attach-file-menu-button').click();
+  await attachMenuButton.click();
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
     page.getByRole('menuitem', { name: optionName }).click(),
