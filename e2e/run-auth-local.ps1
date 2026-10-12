@@ -42,7 +42,7 @@ $portProbe.Start()
 $mongoPort = $portProbe.LocalEndpoint.Port
 $portProbe.Stop()
 
-$mongoDir = Join-Path $env:TEMP ('juristai-auth-mongo-' + [guid]::NewGuid().ToString('N'))
+$mongoDir = Join-Path $repoRoot ('.tmp-auth-mongo-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $mongoDir -Force | Out-Null
 $mongoLog = Join-Path $mongoDir 'mongod.log'
 $mongoArgs = "--dbpath `"$mongoDir`" --bind_ip 127.0.0.1 --port $mongoPort --logpath `"$mongoLog`""
@@ -110,6 +110,11 @@ finally {
 
     if (Test-LocalTcpPort 3080) {
         throw 'The auth E2E app server is still listening on port 3080 after Playwright teardown.'
+    }
+
+    $authStatePath = Join-Path $repoRoot 'e2e\.auth-local\storageState.json'
+    if (Test-Path -LiteralPath $authStatePath) {
+        Remove-Item -LiteralPath $authStatePath -Force
     }
 }
 

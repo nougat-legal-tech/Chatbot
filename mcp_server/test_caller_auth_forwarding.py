@@ -70,7 +70,7 @@ def test_mcp_create_new_unfiled_matter_forwards_without_case_or_docket_id(monkey
     assert calls == [
         (
             "POST",
-            "/api/create-new-case/",
+            "/api/core/create-new-case/",
             {
                 "content": (
                     '{"appId": "2", "caseName": '
@@ -92,7 +92,7 @@ def test_mcp_zoom_disconnect_forwards_selected_app_scope(monkeypatch):
 
     assert result == {"ok": True}
     assert calls == [
-        ("POST", "/api/integrations/conferencing/zoom-2/disconnect/", {"content": '{"appId": "4"}'}),
+            ("POST", "/api/core/integrations/conferencing/zoom-2/disconnect/", {"content": '{"appId": "4"}'}),
     ]
 
 

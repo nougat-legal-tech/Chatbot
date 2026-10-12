@@ -105,11 +105,8 @@ jobs:
         with:
           node-version: '24.16.0'
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v7
-        with:
-          name: node-modules-frontend-windows
-          path: .
+      - name: Install dependencies
+        run: npm ci
 
       - name: Download data-provider build
         uses: actions/download-artifact@v7
