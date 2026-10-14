@@ -337,12 +337,13 @@ async def search_case(
 async def generate_case_summary(  # noqa: PLR0913 - MCP tool schema is intentionally flat
     ctx: Context,
     case_id: str,
+    app_id: str,
     query: str | None = None,
     focus: str | None = None,
     support: str | None = None,
     message: str | None = None,
 ) -> dict:
-    payload: dict[str, str] = {"caseId": case_id}
+    payload: dict[str, str] = {"caseId": case_id, "appId": app_id}
     if query is not None:
         payload["query"] = query
     if focus is not None:
@@ -355,8 +356,8 @@ async def generate_case_summary(  # noqa: PLR0913 - MCP tool schema is intention
 
 
 @mcp.tool(description="Retrieve a previously generated case summary.")
-async def retrieve_case_summary(ctx: Context, case_id: str) -> dict:
-    return await _post(ctx, "/api/retrieve-case-summary/", {"caseId": case_id})
+async def retrieve_case_summary(ctx: Context, case_id: str, app_id: str) -> dict:
+    return await _post(ctx, "/api/retrieve-case-summary/", {"caseId": case_id, "appId": app_id})
 
 
 @mcp.tool(description="Search precedents and case authorities for an authenticated case.")
@@ -1535,14 +1536,13 @@ async def add_case_step(  # noqa: PLR0913 - MCP tool schema is intentionally fla
 async def cr_action_items_gen(
     ctx: Context,
     case_id: str,
+    app_id: str,
     user_id: str | None = None,
-    app_id: str | None = None,
     manual_run: bool | None = None,
 ) -> dict:
-    payload: dict[str, object] = {"caseId": case_id}
+    payload: dict[str, object] = {"caseId": case_id, "appId": app_id}
     optional_values = (
         ("userId", user_id),
-        ("appId", app_id),
         ("manualRun", manual_run),
     )
     for key, value in optional_values:

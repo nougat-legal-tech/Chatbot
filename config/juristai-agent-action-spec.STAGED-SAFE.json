@@ -5865,7 +5865,8 @@
           }
         },
         "required": [
-          "caseId"
+          "caseId",
+          "appId"
         ]
       },
       "AssignLegalTeamToCase": {
@@ -6225,10 +6226,14 @@
         "properties": {
           "caseId": {
             "type": "string"
+          },
+          "appId": {
+            "type": "string"
           }
         },
         "required": [
-          "caseId"
+          "caseId",
+          "appId"
         ]
       },
       "ExportFirmHoursCallable": {

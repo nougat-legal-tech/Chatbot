@@ -2,7 +2,7 @@
  * @jest-environment @happy-dom/jest-environment
  */
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 
 import useIsActiveItem from '../useIsActiveItem';
 
@@ -80,7 +80,7 @@ describe('useIsActiveItem', () => {
       probe.removeAttribute('data-active-item');
       await removed;
     });
-    expect(probe.getAttribute('data-active')).toBe('false');
+    await waitFor(() => expect(probe.getAttribute('data-active')).toBe('false'));
   });
 
   it('ignores unrelated attribute mutations', async () => {

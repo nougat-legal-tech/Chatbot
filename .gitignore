@@ -222,3 +222,7 @@ scripts/activity-labels/results/
 /.auth-mongo-repro-926df317e5e444378320df76baf7f207
 /.auth-mongo-trace-d6ebe8b333ee41fb9955f6d5fde82172
 /.auth-mongo-elevated-bb05e4134ca04f8e9f6acc37c860d9cc
+/.tmp-auth-mongo-0de90e2b5cea4466bfceb797ee0fba65
+/.tmp-auth-mongo-72e586a217994eae82867dc74ba19603
+.tmp-codex-auth-startup-trace.cjs
+.tmp-codex-auth-startup-trace.jsonl
