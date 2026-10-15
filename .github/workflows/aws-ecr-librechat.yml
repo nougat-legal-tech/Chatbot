@@ -17,15 +17,25 @@ concurrency:
 
 env:
   AWS_REGION: us-east-1
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-  ECR_REPOSITORY: librechat
-  MCP_ECR_REPOSITORY: ${{ vars.MCP_ECR_REPOSITORY }}
+  MIGRATION_SOURCE_ECR_REPOSITORY: librechat
+  MIGRATION_SOURCE_ECS_CLUSTER: juristai-librechat-ecs-cluster
+  MIGRATION_SOURCE_ECS_SERVICE: librechat-service
 
 jobs:
   build-and-push-ecr:
     name: Build and push AWS ECR image
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
+    env:
+      AWS_SOURCE_ACCOUNT_ID: ${{ vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
+      AWS_TARGET_ACCOUNT_ID: ${{ vars.AWS_TARGET_ACCOUNT_ID }}
+      AWS_ACCOUNT_ID: ${{ matrix.deployment_account == 'source' && (vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID) || vars.AWS_TARGET_ACCOUNT_ID }}
+      ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && 'librechat' || vars.AWS_TARGET_ECR_REPOSITORY }}
+      MCP_ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && vars.MCP_ECR_REPOSITORY || vars.AWS_TARGET_MCP_ECR_REPOSITORY }}
 
     permissions:
       contents: read
@@ -37,8 +47,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ matrix.deployment_account == 'source' && secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TARGET_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ matrix.deployment_account == 'source' && secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TARGET_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify deployment account and target repositories
@@ -86,6 +96,16 @@ jobs:
     name: Build and push MCP server AWS ECR image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
+    env:
+      AWS_SOURCE_ACCOUNT_ID: ${{ vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
+      AWS_TARGET_ACCOUNT_ID: ${{ vars.AWS_TARGET_ACCOUNT_ID }}
+      AWS_ACCOUNT_ID: ${{ matrix.deployment_account == 'source' && (vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID) || vars.AWS_TARGET_ACCOUNT_ID }}
+      ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && 'librechat' || vars.AWS_TARGET_ECR_REPOSITORY }}
+      MCP_ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && vars.MCP_ECR_REPOSITORY || vars.AWS_TARGET_MCP_ECR_REPOSITORY }}
 
     permissions:
       contents: read
@@ -97,17 +117,23 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ matrix.deployment_account == 'source' && secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TARGET_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ matrix.deployment_account == 'source' && secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TARGET_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify deployment account
+        shell: bash
+        run: |
+          set -euo pipefail
+          caller_account="$(aws sts get-caller-identity --query Account --output text)"
+          [[ "$caller_account" == "$AWS_ACCOUNT_ID" ]] || { echo "Wrong AWS account: expected $AWS_ACCOUNT_ID, got $caller_account" >&2; exit 1; }
 
       - name: Log in to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Ensure ECR repository exists
         run: |
-          aws ecr describe-repositories --repository-names "$MCP_ECR_REPOSITORY" \
-            || aws ecr create-repository --repository-name "$MCP_ECR_REPOSITORY"
+          aws ecr describe-repositories --repository-names "$MCP_ECR_REPOSITORY" >/dev/null
 
       - name: Build Docker image
         run: |
@@ -135,13 +161,22 @@ jobs:
     needs: [build-and-push-ecr, build-and-push-mcp-server-ecr]
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
 
     permissions:
       contents: read
 
     env:
-      ECS_CLUSTER: juristai-librechat-ecs-cluster
-      ECS_SERVICE: librechat-service
+      AWS_SOURCE_ACCOUNT_ID: ${{ vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
+      AWS_TARGET_ACCOUNT_ID: ${{ vars.AWS_TARGET_ACCOUNT_ID }}
+      AWS_ACCOUNT_ID: ${{ matrix.deployment_account == 'source' && (vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID) || vars.AWS_TARGET_ACCOUNT_ID }}
+      ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && 'librechat' || vars.AWS_TARGET_ECR_REPOSITORY }}
+      MCP_ECR_REPOSITORY: ${{ matrix.deployment_account == 'source' && vars.MCP_ECR_REPOSITORY || vars.AWS_TARGET_MCP_ECR_REPOSITORY }}
+      ECS_CLUSTER: ${{ matrix.deployment_account == 'source' && 'juristai-librechat-ecs-cluster' || vars.AWS_TARGET_ECS_CLUSTER }}
+      ECS_SERVICE: ${{ matrix.deployment_account == 'source' && 'librechat-service' || vars.AWS_TARGET_ECS_SERVICE }}
       ECS_TASK_FAMILY: librechat-task
       MCP_CONTAINER_NAME: mcp-server-container
 
@@ -149,9 +184,16 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ matrix.deployment_account == 'source' && secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TARGET_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ matrix.deployment_account == 'source' && secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TARGET_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify deployment account
+        shell: bash
+        run: |
+          set -euo pipefail
+          caller_account="$(aws sts get-caller-identity --query Account --output text)"
+          [[ "$caller_account" == "$AWS_ACCOUNT_ID" ]] || { echo "Wrong AWS account: expected $AWS_ACCOUNT_ID, got $caller_account" >&2; exit 1; }
 
       - name: Register new task definition revision with the pushed images
         id: register
