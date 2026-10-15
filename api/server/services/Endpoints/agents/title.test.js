@@ -7,6 +7,7 @@ const mockCache = {
   delete: jest.fn((key) => mockCacheStore.delete(key)),
 };
 const mockSaveConvo = jest.fn();
+const mockGetConvo = jest.fn();
 
 jest.mock('@librechat/api', () => ({
   ...jest.requireActual('@librechat/api'),
@@ -22,6 +23,7 @@ jest.mock('~/cache/getLogStores', () => jest.fn(() => mockCache));
 
 jest.mock('~/models', () => ({
   saveConvo: (...args) => mockSaveConvo(...args),
+  getConvo: (...args) => mockGetConvo(...args),
 }));
 
 const addTitle = require('./title');
@@ -39,6 +41,45 @@ describe('agents addTitle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCacheStore.clear();
+    mockGetConvo.mockResolvedValue(null);
+  });
+
+  it('titles a gateway-assigned conversation that has no title yet', async () => {
+    const client = makeClient('Nearest Deadline Review');
+    mockGetConvo.mockResolvedValue({ conversationId: 'cid-gw', title: 'New Chat' });
+    const req = { ...makeReq(), body: { conversationId: 'cid-gw' } };
+
+    await addTitle(req, {
+      text: 'Which matter has the nearest deadline?',
+      client,
+      conversationId: 'cid-gw',
+      immediate: true,
+      convoReady: Promise.resolve(),
+    });
+
+    expect(client.titleConvo).toHaveBeenCalledTimes(1);
+    expect(mockSaveConvo).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ conversationId: 'cid-gw', title: 'Nearest Deadline Review' }),
+      expect.anything(),
+    );
+  });
+
+  it('never retitles a gateway-assigned conversation that already has a title', async () => {
+    const client = makeClient('Replacement Title');
+    mockGetConvo.mockResolvedValue({ conversationId: 'cid-gw', title: 'Original Title' });
+    const req = { ...makeReq(), body: { conversationId: 'cid-gw' } };
+
+    await addTitle(req, {
+      text: 'follow-up',
+      client,
+      conversationId: 'cid-gw',
+      immediate: true,
+      convoReady: Promise.resolve(),
+    });
+
+    expect(client.titleConvo).not.toHaveBeenCalled();
+    expect(mockSaveConvo).not.toHaveBeenCalled();
   });
 
   it('uses the explicit conversationId for the cache key and saveConvo (immediate mode)', async () => {

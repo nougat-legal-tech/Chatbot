@@ -2,7 +2,7 @@ const { isEnabled } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
 const { CacheKeys } = require('librechat-data-provider');
 const getLogStores = require('~/cache/getLogStores');
-const { saveConvo } = require('~/models');
+const { saveConvo, getConvo } = require('~/models');
 const { resolveConversationTitle } = require('../titlePolicy');
 
 /**
@@ -65,6 +65,16 @@ const addTitle = async (
   if (!convoId) {
     logger.warn('[addTitle] Missing conversationId; skipping title generation');
     return;
+  }
+
+  /** A caller-assigned conversationId (Vienna's run gateway, channel adapters)
+   *  can arrive with a root parent on every turn; title it once, never retitle. */
+  const requestedConversationId = req?.body?.conversationId;
+  if (requestedConversationId && requestedConversationId !== 'new') {
+    const existing = await getConvo(req.user.id, convoId).catch(() => null);
+    if (existing?.title && existing.title !== 'New Chat') {
+      return;
+    }
   }
 
   const titleCache = getLogStores(CacheKeys.GEN_TITLE);

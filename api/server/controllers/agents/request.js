@@ -870,6 +870,14 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
     req.body.overrideUserMessageId = `${recoveredSteerId}${Constants.COMMON_DIVIDER}0`;
   }
   const isNewConvo = !reqConversationId || reqConversationId === 'new';
+  /** Vienna's Django run gateway assigns the conversationId before the first
+   *  turn reaches us, so `isNewConvo` is false for every product chat and none
+   *  of them were ever titled (history showed only "New Chat"). The first turn
+   *  of a conversation is the one with no parent message; agent-trigger
+   *  continuations into an existing conversation keep the old rule. */
+  const isTitleEligibleTurn =
+    (parentMessageId ?? Constants.NO_PARENT) === Constants.NO_PARENT &&
+    (isNewConvo || req._isAgentTrigger !== true);
   const scheduledNewConversationId =
     isScheduledFire && typeof req.body?.newConversationId === 'string'
       ? req.body.newConversationId
@@ -2231,7 +2239,7 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
         job.abortController.signal.addEventListener('abort', abortTitleOnJobAbort, { once: true });
       }
       const titleEligible =
-        addTitle && parentMessageId === Constants.NO_PARENT && isNewConvo && !req.body?.isTemporary;
+        addTitle && isTitleEligibleTurn && !req.body?.isTemporary;
       const emitTitleEvent = ({ conversationId: titleConversationId, title }) => {
         titleEventPromise = (async () => {
           if (!acceptsTitleEvents || titleAbortController.signal.aborted) {
@@ -2949,8 +2957,7 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
 
         const shouldGenerateTitle =
           addTitle &&
-          parentMessageId === Constants.NO_PARENT &&
-          isNewConvo &&
+          isTitleEligibleTurn &&
           !terminalWasAborted &&
           !preemptIncomplete;
 
