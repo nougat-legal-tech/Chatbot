@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
+        deployment_account: ${{ fromJSON(vars.AWS_DEPLOYMENT_MODE == 'dual' && '["source","destination"]' || vars.AWS_DEPLOYMENT_MODE == 'target' && '["destination"]' || '["source"]') }}
     env:
       AWS_SOURCE_ACCOUNT_ID: ${{ vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
       AWS_TARGET_ACCOUNT_ID: ${{ vars.AWS_TARGET_ACCOUNT_ID }}
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
+        deployment_account: ${{ fromJSON(vars.AWS_DEPLOYMENT_MODE == 'dual' && '["source","destination"]' || vars.AWS_DEPLOYMENT_MODE == 'target' && '["destination"]' || '["source"]') }}
     env:
       AWS_SOURCE_ACCOUNT_ID: ${{ vars.AWS_SOURCE_ACCOUNT_ID || vars.AWS_ACCOUNT_ID }}
       AWS_TARGET_ACCOUNT_ID: ${{ vars.AWS_TARGET_ACCOUNT_ID }}
@@ -164,7 +164,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deployment_account: ${{ fromJSON(vars.AWS_TARGET_ACCOUNT_ID != '' && '["source","destination"]' || '["source"]') }}
+        deployment_account: ${{ fromJSON(vars.AWS_DEPLOYMENT_MODE == 'dual' && '["source","destination"]' || vars.AWS_DEPLOYMENT_MODE == 'target' && '["destination"]' || '["source"]') }}
 
     permissions:
       contents: read
