@@ -166,6 +166,12 @@ export function getLocalE2EEnv(): Record<string, string> {
     ACCESS_IP_WINDOW: '1',
     ACCESS_USER_MAX: '10000',
     ACCESS_USER_WINDOW: '1',
+    /** The fork meters every /api/files request (GETs included) against the upload quota,
+     *  so the default 50/user per 15 min is spent by config/list reads alone mid-suite. */
+    FILE_UPLOAD_IP_MAX: '10000',
+    FILE_UPLOAD_IP_WINDOW: '1',
+    FILE_UPLOAD_USER_MAX: '10000',
+    FILE_UPLOAD_USER_WINDOW: '1',
     LOGIN_VIOLATION_SCORE: '0',
     REGISTRATION_VIOLATION_SCORE: '0',
     CONCURRENT_VIOLATION_SCORE: '0',

@@ -50,14 +50,21 @@ const modelSelectorTrigger = (page: Page) =>
 
 export const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** Open the model selector, choose an endpoint, then its model (committed on the model click). */
+/**
+ * Open the model selector and choose an endpoint's model. Mock Provider A/B are model specs in
+ * the e2e config (not `addedEndpoints`), so clicking their label commits the selection and closes
+ * the menu; real endpoints open a submenu whose model row commits it.
+ */
 export async function selectMockEndpoint(page: Page, endpoint: MockEndpoint) {
   const trigger = modelSelectorTrigger(page);
   await trigger.click();
   await page.getByRole('option', { name: endpoint.label }).click();
   const modelOption = page.getByRole('option', { name: endpoint.model, exact: true });
-  await expect(modelOption).toBeVisible({ timeout: 10_000 });
-  await modelOption.click();
+  const specSelected = trigger.filter({ hasText: endpoint.label });
+  await expect(modelOption.or(specSelected).first()).toBeVisible({ timeout: 10_000 });
+  if (await modelOption.isVisible()) {
+    await modelOption.click();
+  }
   await expect(trigger).not.toHaveText('Select a model');
 }
 
@@ -456,10 +463,7 @@ export async function uploadViaUnifiedButton(page: Page, file: AttachFile) {
   const attachButton = page.locator('#attach-file-button');
   await expect(attachButton).toBeEnabled();
   const uploadResponse = waitForUpload(page);
-  const [fileChooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    attachButton.click(),
-  ]);
+  const [fileChooser] = await Promise.all([page.waitForEvent('filechooser'), attachButton.click()]);
   await fileChooser.setFiles({
     name: file.name,
     mimeType: file.mimeType,
