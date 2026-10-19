@@ -1,6 +1,5 @@
 """The MCP bridge must preserve the authenticated caller for Django policy checks."""
 
-import asyncio
 from types import SimpleNamespace
 
 import mcp_server.server as server
@@ -33,6 +32,15 @@ class _Client:
         return _Response()
 
 
+def _run_mock_async(coroutine):
+    """Run a mocked async call that must finish without real I/O or scheduling."""
+    try:
+        coroutine.send(None)
+    except StopIteration as completed:
+        return completed.value
+    raise AssertionError("Mocked MCP forwarding test attempted asynchronous I/O")
+
+
 def test_mcp_case_tool_passes_caller_token_and_case_scope_to_django(monkeypatch):
     tokens = []
     calls = []
@@ -43,7 +51,7 @@ def test_mcp_case_tool_passes_caller_token_and_case_scope_to_django(monkeypatch)
         )
     )
 
-    result = asyncio.run(server.get_case_metadata(ctx, "case-123"))
+    result = _run_mock_async(server.get_case_metadata(ctx, "case-123"))
 
     assert result == {"ok": True}
     assert tokens == ["Bearer signed-user-token"]
@@ -57,7 +65,7 @@ def test_mcp_create_new_unfiled_matter_forwards_without_case_or_docket_id(monkey
     monkeypatch.setattr(server, "_client", lambda _token: _Client(calls))
     ctx = SimpleNamespace(request_context=SimpleNamespace(request=SimpleNamespace(headers={})))
 
-    result = asyncio.run(
+    result = _run_mock_async(
         server.create_new_case(
             ctx,
             app_id="2",
@@ -86,7 +94,7 @@ def test_mcp_zoom_disconnect_forwards_selected_app_scope(monkeypatch):
     monkeypatch.setattr(server, "_client", lambda _token: _Client(calls))
     ctx = SimpleNamespace(request_context=SimpleNamespace(request=SimpleNamespace(headers={})))
 
-    result = asyncio.run(
+    result = _run_mock_async(
         server.disconnect_scheduling_conferencing(ctx, "zoom-2", app_id="4"),
     )
 
@@ -101,12 +109,9 @@ def test_mcp_client_does_not_create_an_authorization_header_without_a_caller_tok
 
     assert "Authorization" not in client.headers
 
-    asyncio.run(client.aclose())
 
 
 def test_mcp_client_forwards_bearer_token_to_django():
     client = server._client("signed-user-token")
 
     assert client.headers["Authorization"] == "Bearer signed-user-token"
-
-    asyncio.run(client.aclose())
