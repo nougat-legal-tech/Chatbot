@@ -160,7 +160,9 @@ jobs:
       github.event.pull_request != null &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The full nightly mock suite can exceed 30 minutes while Playwright retries
+    # slow UI failures; keep the matrix jobs alive long enough to report results.
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix: >-
