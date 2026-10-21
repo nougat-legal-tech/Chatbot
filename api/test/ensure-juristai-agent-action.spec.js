@@ -172,17 +172,36 @@ describe('ensure-juristai-agent-action (infra-as-code guard)', () => {
 });
 
 describe('juristai scheduling slot action contract', () => {
-  test('publishes a compact canonical argument schema and accepts null optional arguments', () => {
+  test('preserves aliases and allows nullable optional scheduling arguments', () => {
     const spec = JSON.parse(require('fs').readFileSync(SPEC_PATH, 'utf8'));
     const operation = spec.paths['/api/core/scheduling/slots'].get;
-    const parameters = Object.fromEntries(operation.parameters.map((parameter) => [parameter.name, parameter]));
+    const parameters = Object.fromEntries(
+      operation.parameters.map((parameter) => [parameter.name, parameter]),
+    );
 
-    expect(Object.keys(parameters).sort()).toEqual(['endAt', 'eventTypeId', 'slug', 'startAt', 'timeZone']);
-    expect(parameters.startAt.required).toBe(true);
-    expect(parameters.endAt.required).toBe(true);
-    expect(parameters.eventTypeId.schema.nullable).toBe(true);
-    expect(parameters.slug.schema.nullable).toBe(true);
-    expect(parameters.timeZone.schema.nullable).toBe(true);
+    expect(Object.keys(parameters).sort()).toEqual([
+      'bookingUid',
+      'endAt',
+      'endTime',
+      'end_at',
+      'end_time',
+      'eventTypeId',
+      'event_type_id',
+      'reservationUid',
+      'slug',
+      'startAt',
+      'startTime',
+      'start_at',
+      'start_time',
+      'timeZone',
+      'time_zone',
+      'timezone',
+      'token',
+    ]);
+    expect(operation.parameters.every((parameter) => !parameter.required)).toBe(true);
+    expect(operation.parameters.every((parameter) => parameter.schema.nullable === true)).toBe(
+      true,
+    );
   });
 });
 

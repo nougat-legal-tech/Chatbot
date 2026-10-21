@@ -104,7 +104,17 @@ const schemaTypeHandlers: Record<string, (schema: OpenAPISchema) => z.ZodTypeAny
         if (schema.required && schema.required.includes(key)) {
           shape[key] = shape[key].describe(value.description || '');
         } else {
-          shape[key] = shape[key].optional().describe(value.description || '');
+          const optionalSchema = (zodSchema || z.unknown()).optional();
+          // LLMs commonly send an empty string for an optional parameter they
+          // did not fill in. OpenAPI's minLength constraints reject that value
+          // before the action can run, even though the field is optional.
+          // Normalize the empty value to omission so the request follows the
+          // same path as a genuinely absent optional string.
+          shape[key] =
+            (value as OpenAPIV3.SchemaObject).type === 'string'
+              ? z.preprocess((input) => (input === '' ? undefined : input), optionalSchema)
+              : optionalSchema;
+          shape[key] = shape[key].describe(value.description || '');
         }
       });
     }
@@ -118,7 +128,8 @@ function openAPISchemaToZod(schema: OpenAPISchema): z.ZodTypeAny | undefined {
   }
 
   const handler = schemaTypeHandlers[schema.type as string] || (() => z.unknown());
-  return handler(schema);
+  const zodSchema = handler(schema);
+  return schema.nullable ? zodSchema.nullable() : zodSchema;
 }
 
 /**
@@ -478,7 +489,9 @@ export function openapiToFunction(
       // Operation ID is used as the function name
       const defaultOperationId = `${method}_${path}`;
       const operationId = operationObj.operationId || sanitizeOperationId(defaultOperationId);
-      const description = operationObj.summary || operationObj.description || '';
+      const description = [operationObj.summary, operationObj.description]
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .join('\n\n');
       const isStrict = operationObj['x-strict'] ?? false;
 
       const parametersSchema: OpenAPISchema = {

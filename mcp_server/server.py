@@ -28,6 +28,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+try:
+    from mcp_server.function_taxonomy import browse_function_map as _browse_function_map
+except ModuleNotFoundError:  # Tests load this file directly from Chatbot/mcp_server.
+    from function_taxonomy import browse_function_map as _browse_function_map
+
 DJANGO_API_BASE_URL = os.getenv("DJANGO_API_BASE_URL", "https://api-dev.juristai.org").rstrip("/")
 MCP_SERVER_SECRET = os.getenv("MCP_SERVER_SECRET", "")
 _CONNECT_TIMEOUT = float(os.getenv("MCP_DJANGO_CONNECT_TIMEOUT", "5"))
@@ -154,8 +159,26 @@ async def list_action_items(
     case_id: str,
     status: str | None = None,
     assignee_id: str | None = None,
+    app_id: str | None = None,
+    open_only: bool | None = None,
+    search: str | None = None,
+    include_archived: bool | None = None,
+    parent_task_id: str | None = None,
 ) -> dict:
-    return await _get(ctx, "/api/action-items/", {"caseId": case_id, "status": status, "assigneeId": assignee_id})
+    return await _get(
+        ctx,
+        "/api/action-items/",
+        {
+            "caseId": case_id,
+            "status": status,
+            "assignedTo": assignee_id,
+            "appId": app_id,
+            "openOnly": open_only,
+            "search": search,
+            "includeArchived": include_archived,
+            "parentTaskId": parent_task_id,
+        },
+    )
 
 
 def _set_payload_value(payload: dict[str, object], key: str, value: object) -> None:
@@ -1800,6 +1823,33 @@ class SecretGateMiddleware(BaseHTTPMiddleware):
 async def get_procedural_posture(ctx: Context, case_id: str, app_id: str | None = None) -> dict:
     """Compatibility alias for callers using the legacy tool name."""
     return await procedural_posture(ctx, case_id, app_id)
+
+
+@mcp.tool(
+    description=(
+        "Navigate the callable-function catalog. Omit category_id for the category and subgroup table of contents. "
+        "Pass a category_id to get all its tools, or add subcategory_id to narrow to one subgroup."
+    )
+)
+async def browse_function_map(
+    ctx: Context,
+    category_id: str | None = None,
+    subcategory_id: str | None = None,
+) -> dict:
+    """Return the hierarchy, a category's full tool records, or one subgroup's records."""
+    del ctx
+    records = [
+        {
+            "name": tool.name,
+            "description": tool.description,
+            "inputSchema": tool.parameters,
+        }
+        for tool in mcp._tool_manager.list_tools()  # noqa: SLF001 - FastMCP exposes no public list API here.
+        if tool.name != "browse_function_map"
+    ]
+    return _browse_function_map(records, category_id, subcategory_id)
+
+
 app = mcp.streamable_http_app()
 
 if MCP_SERVER_SECRET:

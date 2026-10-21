@@ -3586,15 +3586,51 @@
     "/api/core/scheduling/slots": {
       "get": {
         "operationId": "search-scheduling-slots",
-        "description": "Search available scheduling slots. Provide startAt and endAt as ISO 8601 datetimes, plus either eventTypeId or slug. timeZone is optional and defaults to the event type schedule timezone.",
+        "description": "Search meeting availability for an event type. Provide startAt/endAt, or start_at/end_at, startTime/endTime, or start_time/end_time; identify the event type with eventTypeId, event_type_id, or slug. timeZone may be omitted to use the event type schedule timezone. Use this only for meeting availability and bookings; never use it to set Outlook email follow-up due dates, which belong to draft_followups.",
         "summary": "Search available scheduling slots.",
         "parameters": [
           {
             "in": "query",
-            "name": "endAt",
-            "required": true,
+            "name": "bookingUid",
             "schema": {
               "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "endAt",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "endTime",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_at",
+            "schema": {
+              "type": "string",
+              "nullable": true,
               "minLength": 1
             }
           },
@@ -3609,26 +3645,98 @@
           },
           {
             "in": "query",
+            "name": "event_type_id",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "reservationUid",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
             "name": "slug",
             "schema": {
               "type": "string",
               "nullable": true,
-              "pattern": "^[-a-zA-Z0-9_]+$",
+              "minLength": 1,
+              "pattern": "^[-a-zA-Z0-9_]+$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "startTime",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_at",
+            "schema": {
+              "type": "string",
+              "nullable": true,
               "minLength": 1
             }
           },
           {
             "in": "query",
             "name": "startAt",
-            "required": true,
             "schema": {
               "type": "string",
+              "nullable": true,
               "minLength": 1
             }
           },
           {
             "in": "query",
             "name": "timeZone",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "time_zone",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
             "schema": {
               "type": "string",
               "nullable": true,

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import axios from 'axios';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ParametersSchema } from '../src/actions';
 import type { FlowchartSchema } from './openapiSpecs';
@@ -1249,6 +1251,82 @@ describe('createURL', () => {
   });
 
   describe('openapiToFunction zodSchemas', () => {
+    it('accepts null for optional OpenAPI nullable parameters', () => {
+      const spec = {
+        openapi: '3.0.3',
+        info: { title: 'nullable test', version: '1.0.0' },
+        paths: {
+          '/slots': {
+            get: {
+              operationId: 'searchSlots',
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'startAt',
+                  required: true,
+                  schema: { type: 'string' },
+                },
+                {
+                  in: 'query',
+                  name: 'timeZone',
+                  schema: { type: 'string', nullable: true },
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as unknown as OpenAPIV3.Document;
+      const { zodSchemas } = openapiToFunction(spec, true);
+
+      expect(
+        zodSchemas?.searchSlots?.safeParse({ startAt: '2026-10-21', timeZone: null }).success,
+      ).toBe(true);
+      expect(
+        zodSchemas?.searchSlots?.safeParse({ startAt: '2026-10-21', timeZone: 'UTC' }).success,
+      ).toBe(true);
+
+      for (const filename of [
+        'juristai-agent-action-spec.json',
+        'juristai-agent-action-spec.STAGED-SAFE.json',
+      ]) {
+        const actionSpecPath = path.resolve(__dirname, `../../../config/${filename}`);
+        const actionSpec = JSON.parse(fs.readFileSync(actionSpecPath, 'utf8'));
+        const { functionSignatures, zodSchemas: actionSchemas } = openapiToFunction(
+          actionSpec,
+          true,
+        );
+        const slotSignature = functionSignatures.find(
+          (signature) => signature.name === 'search-scheduling-slots',
+        );
+        expect(slotSignature?.parameters.required).toEqual([]);
+        expect(slotSignature?.description).toContain('Search available scheduling slots.');
+        expect(slotSignature?.description).toContain(
+          'identify the event type with eventTypeId, event_type_id, or slug',
+        );
+        expect(slotSignature?.description).toContain(
+          'never use it to set Outlook email follow-up due dates',
+        );
+        const slotInput = actionSchemas?.['search-scheduling-slots']?.safeParse({
+          startAt: null,
+          endAt: null,
+          eventTypeId: null,
+          slug: '',
+          timeZone: '',
+          bookingUid: '',
+          start_time: '2026-10-21T09:00:00-04:00',
+          end_time: '2026-10-21T17:00:00-04:00',
+          event_type_id: 'event-type-1',
+        });
+        expect(slotInput?.success).toBe(true);
+        if (slotInput?.success) {
+          expect(slotInput.data.slug).toBeUndefined();
+          expect(slotInput.data.timeZone).toBeUndefined();
+          expect(slotInput.data.bookingUid).toBeUndefined();
+        }
+      }
+    });
+
     describe('getWeatherOpenapiSpec', () => {
       const { zodSchemas } = openapiToFunction(getWeatherOpenapiSpec, true);
 

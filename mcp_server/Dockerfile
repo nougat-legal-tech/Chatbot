@@ -1,8 +1,8 @@
 # Vendored copy of django-hub/mcp_server (source of truth: django-hub repo).
 # Lives here so the sidecar image can build with Chatbot's existing AWS/ECR
 # credentials, avoiding a cross-repo checkout token for a private repo.
-# If django-hub/mcp_server/server.py changes, re-sync this copy by hand
-# until a proper cross-repo sync mechanism exists.
+# If django-hub/mcp_server/server.py or its function taxonomy changes,
+# re-sync this copy by hand until a proper cross-repo sync mechanism exists.
 FROM python:3.12-alpine3.22 AS builder
 
 RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
