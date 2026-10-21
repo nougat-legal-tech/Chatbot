@@ -26,9 +26,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -90,9 +88,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -124,9 +120,7 @@
         "operationId": "accept-legal-team-invite",
         "description": "Accepts a pending legal team invite for the authenticated user's email address.",
         "summary": "Accept a legal team invite for the authenticated user.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -171,9 +165,7 @@
         "operationId": "account-manager",
         "description": "Executes the account manager workflow for supported product actions. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Run account-level Vienna workflow actions.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -282,9 +274,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -307,9 +297,7 @@
         "operationId": "create-action-item",
         "description": "Creates a case-scoped action item for a case the authenticated user can access.",
         "summary": "Create an action item.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -364,9 +352,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -420,9 +406,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -476,9 +460,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -522,9 +504,7 @@
         "operationId": "bulk-edit-action-items",
         "description": "Applies a bulk update or delete to case-scoped action items the authenticated user can access, using search/status/priority/assignee selectors plus an explicit applyToAll override.",
         "summary": "Bulk update or delete matching action items.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -569,9 +549,7 @@
         "operationId": "add-case",
         "description": "Resolves teammate targeting, searches for an existing docket first, starts the existing-case assignment workflow when a match exists, and otherwise starts the create-new-case workflow for a brand-new matter.",
         "summary": "Add an existing case to a workspace or create a new matter when no docket match exists.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -622,9 +600,7 @@
         "operationId": "add-case-step",
         "description": "Starts the add-case-step Step Function for a known docket or case identifier plus an explicit role. When userId is omitted, the authenticated caller is assigned by default. This is exposed to the LibreChat assistant as a callable workflow starter.",
         "summary": "Start the existing-case assignment workflow for a docket already known to Vienna.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -676,9 +652,7 @@
         "operationId": "assign-legal-team-to-case",
         "description": "Assigns all current legal team members to a case when the authenticated user has admin-level authority.",
         "summary": "Assign a legal team's members to a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -723,9 +697,7 @@
         "operationId": "assign-user-to-case",
         "description": "Assigns the authenticated user, or an admin-selected user, to a case.",
         "summary": "Assign a user to a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -814,9 +786,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -852,9 +822,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -877,9 +845,7 @@
         "operationId": "create-case-important-date",
         "description": "Creates an important date for a case the authenticated user can access.",
         "summary": "Create an important date for a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -942,9 +908,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1032,9 +996,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -1116,9 +1078,7 @@
             "description": "* `DRAFT` - DRAFT\n* `PREPARED` - PREPARED\n* `SENT` - SENT\n* `VIEWED` - VIEWED\n* `PARTIALLY_SIGNED` - PARTIALLY_SIGNED\n* `COMPLETED` - COMPLETED\n* `DECLINED` - DECLINED\n* `EXPIRED` - EXPIRED\n* `VOIDED` - VOIDED\n* `SYNC_REQUIRED` - SYNC_REQUIRED\n* `FAILED` - FAILED"
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -1143,9 +1103,7 @@
         "operationId": "procedural-posture",
         "description": "Returns the current litigation status and posture for a case using the same docket-classification lambda the intent handler calls.",
         "summary": "Determine the current procedural posture for a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1197,9 +1155,7 @@
         "operationId": "create-new-case",
         "description": "Starts the create-new-case Step Function state machine, which provisions DynamoDB, S3, an assistant thread, docket classification, document ingestion, case summary, action items, recommendations, deadlines insight, and a welcome email. Always provide appId, caseName, and userId. For a PACER matter, provide docketId; for a caller-assigned matter ID, provide caseId. For a new unfiled matter with no docketId or caseId yet, omit both and the service will mint a caseId. Exposed to the LibreChat assistant and intent handler as a callable tool.",
         "summary": "Create a new case and provision its full AI workflow.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1251,9 +1207,7 @@
         "operationId": "deadlines-insight",
         "description": "Runs the deadlines insight workflow for a case and returns the workflow response. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Run deadlines insight for a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1304,9 +1258,7 @@
       "post": {
         "operationId": "deep-research",
         "description": "Starts the MonthlyDeepResearch Step Function used by the legacy intent handler for case-level deep research runs. Exposed to the LibreChat assistant as a callable workflow starter.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1359,9 +1311,7 @@
         "operationId": "demand-letter",
         "description": "Generates a demand letter workflow result from the supplied matter details. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Generate a demand letter draft.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1413,9 +1363,7 @@
         "operationId": "doc-critique",
         "description": "Returns critique feedback for the supplied draft document context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Critique a draft document.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1467,9 +1415,7 @@
         "operationId": "edit-case-action-items",
         "description": "Wraps the action-item CRUD surfaces with the same operation aliasing, item matching, and clarification behavior the legacy intent handler uses for ambiguous action-item edits.",
         "summary": "Create, update, or delete case action items with target resolution.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1521,9 +1467,7 @@
         "operationId": "edit-case-important-dates",
         "description": "Wraps the important-date CRUD surfaces with the same operation aliasing, deadline matching, and clarification behavior the legacy intent handler uses for ambiguous deadline edits.",
         "summary": "Create, update, or delete case deadlines with target resolution.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1575,9 +1519,7 @@
         "operationId": "engagement-letter-signature",
         "description": "Starts the engagement-letter-signature Step Function state machine. The workflow can either generate an engagement letter from interview answers or use an existing artifact, case document, or remote download URL, then creates a signature request for the provided signers. Exposed to the LibreChat assistant and chatbot tool calling as a callable tool.",
         "summary": "Generate or source an engagement letter and send it for signature.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1629,9 +1571,7 @@
         "operationId": "export-firm-hours",
         "description": "Exports logged hours for the actor's assigned cases for a billing period and delivery format. When caseIds or billing dates are omitted, the callable defaults to the actor's current assigned cases and the same legacy weekly billing windows used by the email intent handler.",
         "summary": "Export firm hours for the authenticated user's assigned cases.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1681,9 +1621,7 @@
       "post": {
         "operationId": "finish-drafts",
         "description": "Starts the finish-drafts Step Function used by the legacy intent handler to complete an uploaded draft and stream generation progress.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1736,9 +1674,7 @@
         "operationId": "generate-adversarial",
         "description": "Starts the adversarial motion Step Function used by the intent handler for oppositions, replies, and other adversarial filings.",
         "summary": "Start an adversarial motion workflow.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1790,9 +1726,7 @@
         "operationId": "generate-case-summary",
         "description": "Generates a case summary artifact for the requested case context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Generate a case summary for a case or docket.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1844,9 +1778,7 @@
         "operationId": "generate-lawsuit",
         "description": "Generates a lawsuit draft or related structured output for the supplied matter context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Generate a lawsuit draft workflow result.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1898,9 +1830,7 @@
         "operationId": "generate-motion",
         "description": "Generates a motion drafting workflow result for the supplied matter context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Generate a motion draft.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1952,9 +1882,7 @@
         "operationId": "recommended-filings",
         "description": "Returns recommended next filings for a case using the same docket-recommendation lambda the intent handler calls.",
         "summary": "Recommend the next filings to prepare for a case.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2006,9 +1934,7 @@
         "operationId": "get-case-metadata",
         "description": "Returns structured metadata for a case identified by docket id or related lookup fields. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Retrieve metadata for a specific case or docket.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2069,9 +1995,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -2096,9 +2020,7 @@
         "operationId": "connect-scheduling-conferencing",
         "description": "Starts conferencing provider connection for scheduling.",
         "summary": "Connect scheduling conferencing.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2187,9 +2109,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -2214,9 +2134,7 @@
         "operationId": "legal-team-invite",
         "description": "Triggers the legal team invite workflow for the supplied invite details. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Invite a user to a legal team or case collaboration context.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2288,9 +2206,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -2314,9 +2230,7 @@
       "post": {
         "operationId": "manual-docket-structurer",
         "description": "Structure pasted or OCR-derived docket entries through the same manual docket structuring lambda the legacy intent handler dispatches.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2391,20 +2305,14 @@
             "in": "query",
             "name": "scope",
             "schema": {
-              "enum": [
-                "all",
-                "open",
-                "closed"
-              ],
+              "enum": ["all", "open", "closed"],
               "type": "string",
               "minLength": 1
             },
             "description": "* `all` - all\n* `open` - open\n* `closed` - closed"
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -2439,9 +2347,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -2466,9 +2372,7 @@
         "operationId": "precedent-query",
         "description": "Queries precedent-related research helpers for the provided matter context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Query precedent and legal research context.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2520,9 +2424,7 @@
         "operationId": "prepare-all-bills",
         "description": "Prepares bills for the actor's assigned cases for a billing period. When caseIds or billing dates are omitted, the callable defaults to the actor's current assigned cases and the same legacy weekly billing windows used by the email intent handler.",
         "summary": "Prepare bills for the authenticated user's assigned cases.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2573,9 +2475,7 @@
         "operationId": "query-processor",
         "description": "Processes a structured legal query through the query processor workflow. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Run the Vienna legal query processor.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2627,9 +2527,7 @@
         "operationId": "search-documents",
         "description": "Queries the RAG search proxy for case-linked documents. Accepts either caseId or docketId plus a query string. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Search case documents and workspace knowledge.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2681,9 +2579,7 @@
         "operationId": "read-people-dossiers",
         "description": "Retrieves full people dossier data for case-linked people. Provide caseId and name for a specific person lookup. The tool resolves the case individual and generates a missing dossier before returning; provide email when already known. Use includeAll=true only when the user explicitly asks for the full people list.",
         "summary": "Read people dossier records.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2735,9 +2631,7 @@
         "operationId": "recommend-lawsuit",
         "description": "Returns lawsuit recommendation guidance for the supplied matter context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Recommend a lawsuit strategy or draft path.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2789,9 +2683,7 @@
         "operationId": "rename-legal-team",
         "description": "Renames a legal team when the authenticated user has admin-level authority.",
         "summary": "Rename a legal team.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2836,9 +2728,7 @@
         "operationId": "request-more-case-documents",
         "description": "Compares hydrated case timeline entries with slim docket metadata and returns a deterministic request for the missing source documents needed to rely on downstream case guidance.",
         "summary": "Ask the user for the most valuable missing case documents.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2890,9 +2780,7 @@
         "operationId": "retrieve-case-summary",
         "description": "Retrieves a previously generated case summary for the requested case context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Retrieve an existing case summary.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2944,9 +2832,7 @@
         "operationId": "check-docket-updates",
         "description": "Refreshes the latest docket metadata for a case already known to Vienna. When docketId is omitted, the authenticated case context is reused.",
         "summary": "Refresh docket metadata for a known case or docket.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3016,9 +2902,7 @@
             "description": "* `pending_confirmation` - pending_confirmation\n* `confirmed` - confirmed\n* `cancelled` - cancelled\n* `rescheduled` - rescheduled\n* `conference_failed` - conference_failed"
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3042,9 +2926,7 @@
         "operationId": "create-scheduling-booking",
         "description": "Creates a confirmed or pending booking from a reservation.",
         "summary": "Create a scheduling booking.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3100,9 +2982,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3157,9 +3037,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3194,9 +3072,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3251,9 +3127,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3309,9 +3183,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3336,9 +3208,7 @@
         "operationId": "connect-scheduling-conferencing_2",
         "description": "Starts conferencing provider connection for scheduling.",
         "summary": "Connect scheduling conferencing.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3383,9 +3253,7 @@
         "operationId": "list-host-scheduling-event-types",
         "description": "Lists the authenticated host user's scheduling event types.",
         "summary": "List host scheduling event types.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3408,9 +3276,7 @@
         "operationId": "create-scheduling-event-type",
         "description": "Creates a scheduling event type and optional public booking link for the authenticated host user.",
         "summary": "Create a scheduling event type.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3465,9 +3331,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3519,9 +3383,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3564,12 +3426,8 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
-        "security": [
-          {}
-        ],
+        "tags": ["llm-tools"],
+        "security": [{}],
         "responses": {
           "200": {
             "description": "No response body"
@@ -3593,12 +3451,8 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
-        "security": [
-          {}
-        ],
+        "tags": ["llm-tools"],
+        "security": [{}],
         "responses": {
           "200": {
             "description": "No response body"
@@ -3612,9 +3466,7 @@
         "operationId": "list-host-scheduling-schedules",
         "description": "Lists the authenticated host user's scheduling schedules.",
         "summary": "List host scheduling schedules.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3637,9 +3489,7 @@
         "operationId": "create-scheduling-schedule",
         "description": "Creates an availability schedule for the authenticated host user.",
         "summary": "Create a scheduling schedule.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3694,9 +3544,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3738,7 +3586,7 @@
     "/api/core/scheduling/slots": {
       "get": {
         "operationId": "search-scheduling-slots",
-        "description": "Searches available scheduling slots for an event type link or event type identifier.",
+        "description": "Searches available scheduling slots for an event type link or identifier. Use startAt/endAt or legacy startTime/endTime (including snake_case forms); timeZone may be omitted to use the event type schedule timezone.",
         "summary": "Search available scheduling slots.",
         "parameters": [
           {
@@ -3755,12 +3603,43 @@
             "schema": {
               "type": "string",
               "minLength": 1
-            },
-            "required": true
+            }
+          },
+          {
+            "in": "query",
+            "name": "endTime",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_at",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           {
             "in": "query",
             "name": "eventTypeId",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "event_type_id",
             "schema": {
               "type": "string",
               "minLength": 1
@@ -3785,12 +3664,35 @@
           },
           {
             "in": "query",
+            "name": "startTime",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_at",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
             "name": "startAt",
             "schema": {
               "type": "string",
               "minLength": 1
-            },
-            "required": true
+            }
           },
           {
             "in": "query",
@@ -3798,8 +3700,23 @@
             "schema": {
               "type": "string",
               "minLength": 1
-            },
-            "required": true
+            }
+          },
+          {
+            "in": "query",
+            "name": "time_zone",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           {
             "in": "query",
@@ -3811,9 +3728,7 @@
             }
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3839,9 +3754,7 @@
         "operationId": "create-scheduling-reservation",
         "description": "Temporarily reserves a scheduling slot before a booking is created.",
         "summary": "Create a scheduling slot reservation.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3897,9 +3810,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -3925,9 +3836,7 @@
         "operationId": "search-case",
         "description": "Returns matching case records from the CourtListener index. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Search cases by docket ID or query terms.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3979,9 +3888,7 @@
         "operationId": "send-client-invoice",
         "description": "Preserves the legacy confirmation gate for client invoice sending. When confirm is false or omitted, the callable returns a no-send preview and asks for CONFIRM SEND. When billing dates are omitted, it defaults to the same legacy billing windows used by the email intent handler.",
         "summary": "Send a generated invoice to the client for a case after explicit confirmation.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4032,9 +3939,7 @@
         "operationId": "create-signature-request",
         "description": "Creates a case-scoped or workspace-scoped signature request.",
         "summary": "Create a signature request.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4088,9 +3993,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4125,9 +4028,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4162,9 +4063,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4199,9 +4098,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4236,9 +4133,7 @@
             "required": true
           }
         ],
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4282,9 +4177,7 @@
         "operationId": "summarize-document",
         "description": "Produces a summary of the supplied document or filing context. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Summarize a document or filing.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4336,9 +4229,7 @@
         "operationId": "list-motion-templates",
         "description": "Returns the current motion templates visible to the authenticated user, including optional scope and filter constraints. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "List motion templates available to the authenticated user.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4363,9 +4254,7 @@
         "operationId": "list-motion-templates_2",
         "description": "Returns the current motion templates visible to the authenticated user, including optional scope and filter constraints. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "List motion templates available to the authenticated user.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4390,9 +4279,7 @@
         "operationId": "show-motion-template",
         "description": "Returns the latest matching motion template with its scope metadata, download link, optional preview link, and a short excerpt of the content. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Show the latest version of a motion template.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4417,9 +4304,7 @@
         "operationId": "show-motion-template_2",
         "description": "Returns the latest matching motion template with its scope metadata, download link, optional preview link, and a short excerpt of the content. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Show the latest version of a motion template.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "security": [
           {
             "chatMintedBearerAuth": []
@@ -4444,9 +4329,7 @@
         "operationId": "templatize-motion-template",
         "description": "Invokes the motion-template templatization workflow for a case-linked source document. The authenticated caller supplies case context plus a source payload; the server derives userId from the request when omitted. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Templatize an uploaded motion template source.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4498,9 +4381,7 @@
         "operationId": "update-user-hourly-rate",
         "description": "Stores the actor's hourly billing rate directly on the Vienna user record. Exposed to the LibreChat assistant as a callable tool.",
         "summary": "Update the authenticated user's hourly billing rate.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4552,9 +4433,7 @@
         "operationId": "upload-documents",
         "description": "Stores user-supplied documents in the target case workspace through the same upload and finalize lambdas the legacy intent handler uses for attachment-backed uploads.",
         "summary": "Upload one or more case documents into the workspace and finalize hydration.",
-        "tags": [
-          "llm-tools"
-        ],
+        "tags": ["llm-tools"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4619,10 +4498,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "caseId",
-                  "docketEntryId"
-                ]
+                "required": ["caseId", "docketEntryId"]
               }
             },
             "application/x-www-form-urlencoded": {
@@ -4636,10 +4512,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "caseId",
-                  "docketEntryId"
-                ]
+                "required": ["caseId", "docketEntryId"]
               }
             },
             "multipart/form-data": {
@@ -4653,10 +4526,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "caseId",
-                  "docketEntryId"
-                ]
+                "required": ["caseId", "docketEntryId"]
               }
             }
           },
@@ -4676,10 +4546,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "caseId",
-                    "docketEntryId"
-                  ]
+                  "required": ["caseId", "docketEntryId"]
                 }
               }
             },
@@ -4716,10 +4583,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "s3_links",
-          "userId"
-        ]
+        "required": ["s3_links", "userId"]
       },
       "EditCaseActionItemsCallable": {
         "type": "object",
@@ -4808,16 +4672,10 @@
           },
           "match": {}
         },
-        "required": [
-          "caseId",
-          "operation"
-        ]
+        "required": ["caseId", "operation"]
       },
       "ManualDocketStructurerSourceTypeEnum": {
-        "enum": [
-          "user_text",
-          "ocr_text"
-        ],
+        "enum": ["user_text", "ocr_text"],
         "type": "string",
         "description": "* `user_text` - user_text\n* `ocr_text` - ocr_text"
       },
@@ -4850,9 +4708,7 @@
             }
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "SendClientInvoiceCallable": {
         "type": "object",
@@ -4923,11 +4779,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId",
-          "docketEntryId",
-          "userId"
-        ]
+        "required": ["caseId", "docketEntryId", "userId"]
       },
       "CaseImportantDateCreate": {
         "type": "object",
@@ -4968,11 +4820,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "caseId",
-          "date",
-          "label"
-        ]
+        "required": ["caseId", "date", "label"]
       },
       "TemplatizeUploadedMotionTemplateLambda": {
         "type": "object",
@@ -5002,11 +4850,7 @@
           "overrides": {},
           "source": {}
         },
-        "required": [
-          "appId",
-          "caseId",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "userId"]
       },
       "GenerateCaseBill": {
         "type": "object",
@@ -5034,12 +4878,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "billingTimezone",
-          "billingWeekEnd",
-          "billingWeekStart",
-          "caseId"
-        ]
+        "required": ["billingTimezone", "billingWeekEnd", "billingWeekStart", "caseId"]
       },
       "BookingManage": {
         "type": "object",
@@ -5067,18 +4906,10 @@
             "type": "string"
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "userId"]
       },
       "OutputFormatEnum": {
-        "enum": [
-          "csv",
-          "pdf",
-          "both"
-        ],
+        "enum": ["csv", "pdf", "both"],
         "type": "string",
         "description": "* `csv` - csv\n* `pdf` - pdf\n* `both` - both"
       },
@@ -5107,9 +4938,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "docketId"
-        ]
+        "required": ["docketId"]
       },
       "SignatureSigner": {
         "type": "object",
@@ -5150,10 +4979,7 @@
             "default": "signature"
           }
         },
-        "required": [
-          "email",
-          "name"
-        ]
+        "required": ["email", "name"]
       },
       "AccountManager": {
         "type": "object",
@@ -5188,9 +5014,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "userId"
-        ]
+        "required": ["userId"]
       },
       "CaseBillingSummary": {
         "type": "object",
@@ -5229,12 +5053,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "billingWeekEnd",
-          "billingWeekStart",
-          "caseId",
-          "userId"
-        ]
+        "required": ["billingWeekEnd", "billingWeekStart", "caseId", "userId"]
       },
       "FinishDrafts": {
         "type": "object",
@@ -5261,10 +5080,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "caseId",
-          "documentS3Url"
-        ]
+        "required": ["caseId", "documentS3Url"]
       },
       "PatchedEventTypePatch": {
         "type": "object",
@@ -5362,11 +5178,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "appId",
-          "caseName",
-          "userId"
-        ]
+        "required": ["appId", "caseName", "userId"]
       },
       "LawsuitGenerator": {
         "type": "object",
@@ -5407,14 +5219,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "date",
-          "motionType",
-          "support",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "date", "motionType", "support", "userId"]
       },
       "ActionItemAssign": {
         "type": "object",
@@ -5444,10 +5249,7 @@
         }
       },
       "DeliveryModeEnum": {
-        "enum": [
-          "combined",
-          "per_case"
-        ],
+        "enum": ["combined", "per_case"],
         "type": "string",
         "description": "* `combined` - combined\n* `per_case` - per_case"
       },
@@ -5461,10 +5263,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "appId",
-          "legalTeamId"
-        ]
+        "required": ["appId", "legalTeamId"]
       },
       "RequestMissingCaseDocuments": {
         "type": "object",
@@ -5477,9 +5276,7 @@
             "default": ""
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "TypeEnum": {
         "enum": [
@@ -5509,10 +5306,7 @@
             "format": "email"
           }
         },
-        "required": [
-          "appId",
-          "legalTeamId"
-        ]
+        "required": ["appId", "legalTeamId"]
       },
       "EngagementLetterSignatureWorkflow": {
         "type": "object",
@@ -5617,12 +5411,7 @@
             "default": true
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "signers",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "signers", "userId"]
       },
       "PatchedCaseImportantDateUpdate": {
         "type": "object",
@@ -5669,21 +5458,10 @@
             "type": "string"
           }
         },
-        "required": [
-          "appId",
-          "legalTeamId",
-          "legalTeamName"
-        ]
+        "required": ["appId", "legalTeamId", "legalTeamName"]
       },
       "LocationTypeEnum": {
-        "enum": [
-          "zoom",
-          "custom_link",
-          "phone",
-          "in_person",
-          "none",
-          "manual"
-        ],
+        "enum": ["zoom", "custom_link", "phone", "in_person", "none", "manual"],
         "type": "string",
         "description": "* `zoom` - zoom\n* `custom_link` - custom_link\n* `phone` - phone\n* `in_person` - in_person\n* `none` - none\n* `manual` - manual"
       },
@@ -5706,9 +5484,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "type"
-        ]
+        "required": ["type"]
       },
       "PatchedActionItemUpdate": {
         "type": "object",
@@ -5864,10 +5640,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId",
-          "appId"
-        ]
+        "required": ["caseId", "appId"]
       },
       "AssignLegalTeamToCase": {
         "type": "object",
@@ -5882,11 +5655,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "legalTeamId"
-        ]
+        "required": ["appId", "caseId", "legalTeamId"]
       },
       "SourceTypeC2cEnum": {
         "enum": [
@@ -5919,11 +5688,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "reservationToken",
-          "reservationUid",
-          "timeZone"
-        ]
+        "required": ["reservationToken", "reservationUid", "timeZone"]
       },
       "CaseMembershipMutation": {
         "type": "object",
@@ -5935,9 +5700,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "ManualDocketStructurer": {
         "type": "object",
@@ -5967,9 +5730,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "UploadDocumentsCallable": {
         "type": "object",
@@ -5999,9 +5760,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "SignatureRequestAction": {
         "type": "object",
@@ -6046,20 +5805,10 @@
             "default": "medium"
           }
         },
-        "required": [
-          "caseId",
-          "citations",
-          "documentName",
-          "motionId",
-          "userId"
-        ]
+        "required": ["caseId", "citations", "documentName", "motionId", "userId"]
       },
       "MotionLengthEnum": {
-        "enum": [
-          "short",
-          "medium",
-          "long"
-        ],
+        "enum": ["short", "medium", "long"],
         "type": "string",
         "description": "* `short` - short\n* `medium` - medium\n* `long` - long"
       },
@@ -6125,10 +5874,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "caseId",
-          "operation"
-        ]
+        "required": ["caseId", "operation"]
       },
       "ConferencingConnect": {
         "type": "object",
@@ -6141,9 +5887,7 @@
             "default": true
           }
         },
-        "required": [
-          "appId"
-        ]
+        "required": ["appId"]
       },
       "RagQueryProxy": {
         "type": "object",
@@ -6167,9 +5911,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "query"
-        ]
+        "required": ["query"]
       },
       "CaseSearch": {
         "type": "object",
@@ -6215,11 +5957,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "appId",
-          "order_by",
-          "type"
-        ]
+        "required": ["appId", "order_by", "type"]
       },
       "CaseSummaryRetrieve": {
         "type": "object",
@@ -6231,10 +5969,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId",
-          "appId"
-        ]
+        "required": ["caseId", "appId"]
       },
       "ExportFirmHoursCallable": {
         "type": "object",
@@ -6380,10 +6115,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "docketId",
-          "role"
-        ]
+        "required": ["docketId", "role"]
       },
       "EventType": {
         "type": "object",
@@ -6447,14 +6179,7 @@
             "default": true
           }
         },
-        "required": [
-          "appId",
-          "durationMinutes",
-          "locationType",
-          "scheduleId",
-          "slug",
-          "title"
-        ]
+        "required": ["appId", "durationMinutes", "locationType", "scheduleId", "slug", "title"]
       },
       "LegalTeamInvite": {
         "type": "object",
@@ -6473,11 +6198,7 @@
             "format": "email"
           }
         },
-        "required": [
-          "appId",
-          "email",
-          "legalTeamId"
-        ]
+        "required": ["appId", "email", "legalTeamId"]
       },
       "ReservationCreate": {
         "type": "object",
@@ -6506,12 +6227,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "eventTypeId",
-          "slotEndAt",
-          "slotStartAt",
-          "timeZone"
-        ]
+        "required": ["eventTypeId", "slotEndAt", "slotStartAt", "timeZone"]
       },
       "Schedule": {
         "type": "object",
@@ -6550,11 +6266,7 @@
             "default": true
           }
         },
-        "required": [
-          "appId",
-          "availabilityRules",
-          "timezone"
-        ]
+        "required": ["appId", "availabilityRules", "timezone"]
       },
       "CreateSignatureRequest": {
         "type": "object",
@@ -6716,9 +6428,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "DocketClassification": {
         "type": "object",
@@ -6733,9 +6443,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "GenerateAdversarialMotion": {
         "type": "object",
@@ -6762,9 +6470,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "SignatureDocument": {
         "type": "object",
@@ -6809,13 +6515,7 @@
             "default": "medium"
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "documentName",
-          "motionId",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "documentName", "motionId", "userId"]
       },
       "MotionGeneration": {
         "type": "object",
@@ -6861,14 +6561,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "appId",
-          "caseId",
-          "date",
-          "motion_type",
-          "support",
-          "userId"
-        ]
+        "required": ["appId", "caseId", "date", "motion_type", "support", "userId"]
       },
       "BookingCreate": {
         "type": "object",
@@ -6901,13 +6594,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "attendee",
-          "eventTypeId",
-          "reservationToken",
-          "reservationUid",
-          "timeZone"
-        ]
+        "required": ["attendee", "eventTypeId", "reservationToken", "reservationUid", "timeZone"]
       },
       "AcceptLegalTeamInvite": {
         "type": "object",
@@ -6916,9 +6603,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "token"
-        ]
+        "required": ["token"]
       },
       "ReadPeopleDossiers": {
         "type": "object",
@@ -6939,17 +6624,10 @@
             "description": "Use true only when the user explicitly asks for the full people list."
           }
         },
-        "required": [
-          "caseId"
-        ]
+        "required": ["caseId"]
       },
       "CreateSignatureRequestModeEnum": {
-        "enum": [
-          "guest",
-          "guest_otp",
-          "mixed",
-          "self"
-        ],
+        "enum": ["guest", "guest_otp", "mixed", "self"],
         "type": "string",
         "description": "* `guest` - guest\n* `guest_otp` - guest_otp\n* `mixed` - mixed\n* `self` - self"
       },
@@ -7055,10 +6733,7 @@
           },
           "match": {}
         },
-        "required": [
-          "caseId",
-          "operation"
-        ]
+        "required": ["caseId", "operation"]
       },
       "DeadlinesInsight": {
         "type": "object",
@@ -7097,10 +6772,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "caseId",
-          "userId"
-        ]
+        "required": ["caseId", "userId"]
       },
       "ActionItemCreate": {
         "type": "object",
@@ -7229,10 +6901,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "caseId",
-          "title"
-        ]
+        "required": ["caseId", "title"]
       },
       "UpdateUserHourlyRate": {
         "type": "object",
@@ -7243,9 +6912,7 @@
             "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
           }
         },
-        "required": [
-          "hourlyRate"
-        ]
+        "required": ["hourlyRate"]
       },
       "PatchedSchedulePatch": {
         "type": "object",

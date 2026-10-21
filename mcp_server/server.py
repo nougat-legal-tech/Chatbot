@@ -1258,24 +1258,43 @@ async def list_host_scheduling_schedules(ctx: Context) -> dict:
     return await _get(ctx, "/api/scheduling/schedules/")
 
 
-@mcp.tool(description="Search available scheduling slots.")
+@mcp.tool(
+    description=(
+        "Search available scheduling slots. Use startAt, endAt, and timeZone; "
+        "provide eventTypeId or slug. Legacy start_time/end_time and snake-case "
+        "argument names are also accepted."
+    )
+)
 async def search_scheduling_slots(
     ctx: Context,
-    start_at: str,
-    end_at: str,
-    time_zone: str,
-    event_type_id: str | None = None,
+    startAt: str | None = None,
+    endAt: str | None = None,
+    timeZone: str | None = None,
+    eventTypeId: str | None = None,
     slug: str | None = None,
+    start_at: str | None = None,
+    end_at: str | None = None,
+    time_zone: str | None = None,
+    startTime: str | None = None,
+    endTime: str | None = None,
+    start_time: str | None = None,
+    end_time: str | None = None,
+    timezone: str | None = None,
+    event_type_id: str | None = None,
 ) -> dict:
-    if not event_type_id and not slug:
-        raise ValueError("event_type_id or slug is required")
-    params = {
-        "startAt": start_at,
-        "endAt": end_at,
-        "timeZone": time_zone,
-    }
-    if event_type_id:
-        params["eventTypeId"] = event_type_id
+    start_value = startAt or start_at or startTime or start_time
+    end_value = endAt or end_at or endTime or end_time
+    zone_value = timeZone or time_zone or timezone
+    event_type_value = eventTypeId or event_type_id
+    if not start_value or not end_value:
+        raise ValueError("startAt and endAt are required")
+    if not event_type_value and not slug:
+        raise ValueError("eventTypeId or slug is required")
+    params = {"startAt": start_value, "endAt": end_value}
+    if zone_value:
+        params["timeZone"] = zone_value
+    if event_type_value:
+        params["eventTypeId"] = event_type_value
     if slug:
         params["slug"] = slug
     return await _get(ctx, "/api/scheduling/slots/", params)

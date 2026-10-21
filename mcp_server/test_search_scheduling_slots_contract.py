@@ -1,5 +1,6 @@
 import asyncio
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -56,7 +57,7 @@ def test_search_scheduling_slots_accepts_slug_and_requires_selector(monkeypatch)
         )
     )
     assert result["slug"] == "intro-call"
-    with pytest.raises(ValueError, match="event_type_id or slug is required"):
+    with pytest.raises(ValueError, match="eventTypeId or slug is required"):
         asyncio.run(
             server.search_scheduling_slots(
                 object(),
@@ -64,4 +65,64 @@ def test_search_scheduling_slots_accepts_slug_and_requires_selector(monkeypatch)
                 end_at="2026-10-21T17:00:00Z",
                 time_zone="UTC",
             )
+        )
+
+
+
+
+def test_search_scheduling_slots_accepts_api_camel_case_arguments(monkeypatch):
+    async def fake_get(_ctx, _path, params):
+        return params
+
+    monkeypatch.setattr(server, "_get", fake_get)
+    result = asyncio.run(
+        server.search_scheduling_slots(
+            object(),
+            startAt="2026-10-21T09:00:00Z",
+            endAt="2026-10-21T17:00:00Z",
+            timeZone="America/New_York",
+            eventTypeId="event-type-1",
+        )
+    )
+    assert result == {
+        "startAt": "2026-10-21T09:00:00Z",
+        "endAt": "2026-10-21T17:00:00Z",
+        "timeZone": "America/New_York",
+        "eventTypeId": "event-type-1",
+    }
+
+
+def test_search_scheduling_slots_accepts_legacy_action_arguments(monkeypatch):
+    async def fake_get(_ctx, _path, params):
+        return params
+
+    monkeypatch.setattr(server, "_get", fake_get)
+    result = asyncio.run(
+        server.search_scheduling_slots(
+            object(),
+            start_time="2026-10-21T09:00:00Z",
+            end_time="2026-10-21T17:00:00Z",
+            event_type_id="event-type-1",
+        )
+    )
+    assert result == {
+        "startAt": "2026-10-21T09:00:00Z",
+        "endAt": "2026-10-21T17:00:00Z",
+        "eventTypeId": "event-type-1",
+    }
+
+
+def test_action_specs_accept_legacy_scheduling_argument_names():
+    config_dir = MODULE_PATH.parents[1] / "config"
+    for filename in (
+        "juristai-agent-action-spec.json",
+        "juristai-agent-action-spec.STAGED-SAFE.json",
+    ):
+        spec = json.loads((config_dir / filename).read_text(encoding="utf-8"))
+        operation = spec["paths"]["/api/core/scheduling/slots"]["get"]
+        parameters = {item["name"]: item for item in operation["parameters"]}
+        assert {"startAt", "endAt", "timeZone", "start_time", "end_time", "event_type_id"} <= set(parameters)
+        assert not any(
+            parameters[name].get("required")
+            for name in ("startAt", "endAt", "timeZone")
         )
