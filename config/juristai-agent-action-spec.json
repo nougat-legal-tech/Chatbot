@@ -3586,44 +3586,13 @@
     "/api/core/scheduling/slots": {
       "get": {
         "operationId": "search-scheduling-slots",
-        "description": "Searches available scheduling slots for an event type link or identifier. Use startAt/endAt or legacy startTime/endTime (including snake_case forms); timeZone may be omitted to use the event type schedule timezone.",
+        "description": "Search available scheduling slots. Provide startAt and endAt as ISO 8601 datetimes, plus either eventTypeId or slug. timeZone is optional and defaults to the event type schedule timezone.",
         "summary": "Search available scheduling slots.",
         "parameters": [
           {
             "in": "query",
-            "name": "bookingUid",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
             "name": "endAt",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "endTime",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "end_time",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "end_at",
+            "required": true,
             "schema": {
               "type": "string",
               "minLength": 1
@@ -3634,22 +3603,7 @@
             "name": "eventTypeId",
             "schema": {
               "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "event_type_id",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "reservationUid",
-            "schema": {
-              "type": "string",
+              "nullable": true,
               "minLength": 1
             }
           },
@@ -3658,37 +3612,15 @@
             "name": "slug",
             "schema": {
               "type": "string",
+              "nullable": true,
               "pattern": "^[-a-zA-Z0-9_]+$",
               "minLength": 1
             }
           },
           {
             "in": "query",
-            "name": "startTime",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "start_time",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "start_at",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
             "name": "startAt",
+            "required": true,
             "schema": {
               "type": "string",
               "minLength": 1
@@ -3697,30 +3629,6 @@
           {
             "in": "query",
             "name": "timeZone",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "time_zone",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "timezone",
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "token",
             "schema": {
               "type": "string",
               "nullable": true,

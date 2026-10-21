@@ -112,7 +112,7 @@ def test_search_scheduling_slots_accepts_legacy_action_arguments(monkeypatch):
     }
 
 
-def test_action_specs_accept_legacy_scheduling_argument_names():
+def test_action_specs_publish_only_canonical_scheduling_arguments():
     config_dir = MODULE_PATH.parents[1] / "config"
     for filename in (
         "juristai-agent-action-spec.json",
@@ -121,8 +121,9 @@ def test_action_specs_accept_legacy_scheduling_argument_names():
         spec = json.loads((config_dir / filename).read_text(encoding="utf-8"))
         operation = spec["paths"]["/api/core/scheduling/slots"]["get"]
         parameters = {item["name"]: item for item in operation["parameters"]}
-        assert {"startAt", "endAt", "timeZone", "start_time", "end_time", "event_type_id"} <= set(parameters)
-        assert not any(
-            parameters[name].get("required")
-            for name in ("startAt", "endAt", "timeZone")
-        )
+        assert set(parameters) == {"startAt", "endAt", "timeZone", "eventTypeId", "slug"}
+        assert parameters["startAt"]["required"] is True
+        assert parameters["endAt"]["required"] is True
+        assert parameters["timeZone"]["schema"]["nullable"] is True
+        assert parameters["eventTypeId"]["schema"]["nullable"] is True
+        assert parameters["slug"]["schema"]["nullable"] is True
