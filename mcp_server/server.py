@@ -1259,16 +1259,26 @@ async def list_host_scheduling_schedules(ctx: Context) -> dict:
 
 
 @mcp.tool(description="Search available scheduling slots.")
-async def search_scheduling_slots(ctx: Context, event_type_id: str, start_time: str, end_time: str) -> dict:
-    return await _get(
-        ctx,
-        "/api/scheduling/slots/",
-        {
-            "eventTypeId": event_type_id,
-            "startTime": start_time,
-            "endTime": end_time,
-        },
-    )
+async def search_scheduling_slots(
+    ctx: Context,
+    start_at: str,
+    end_at: str,
+    time_zone: str,
+    event_type_id: str | None = None,
+    slug: str | None = None,
+) -> dict:
+    if not event_type_id and not slug:
+        raise ValueError("event_type_id or slug is required")
+    params = {
+        "startAt": start_at,
+        "endAt": end_at,
+        "timeZone": time_zone,
+    }
+    if event_type_id:
+        params["eventTypeId"] = event_type_id
+    if slug:
+        params["slug"] = slug
+    return await _get(ctx, "/api/scheduling/slots/", params)
 
 
 @mcp.tool(description="List the authenticated host user's event types.")
