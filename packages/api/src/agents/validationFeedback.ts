@@ -61,10 +61,12 @@ export function toolValidationFeedback(
     return undefined;
   }
   const fields: string[] = [];
+  const requiredFields = new Set<string>();
   if (schema != null && typeof schema === 'object' && 'required' in schema) {
     const required = schema.required;
     if (Array.isArray(required)) {
       for (const field of required.slice(0, MAX_FIELDS)) {
+        if (typeof field === 'string') requiredFields.add(field);
         if (
           typeof field === 'string' &&
           (input == null ||
@@ -80,6 +82,7 @@ export function toolValidationFeedback(
   if (shape != null) {
     for (const [field, fieldSchema] of Object.entries(shape).slice(0, MAX_FIELDS)) {
       const metadata = unwrapZodField(fieldSchema);
+      if (!metadata.optional) requiredFields.add(field);
       if (
         !metadata.optional &&
         (input == null ||
@@ -95,6 +98,7 @@ export function toolValidationFeedback(
     ? ` Missing required fields: ${uniqueFields.join(', ')}.`
     : '';
   const invalid: string[] = [];
+  const empty: string[] = [];
   if (
     schema != null &&
     typeof schema === 'object' &&
@@ -116,6 +120,13 @@ export function toolValidationFeedback(
       const value = Object.getOwnPropertyDescriptor(input, field)?.value;
       if ((type === 'string' || type === 'boolean' || type === 'number') && typeof value !== type) {
         invalid.push(`${safeName(field)} (expected ${type})`);
+      } else if (
+        type === 'string' &&
+        requiredFields.has(field) &&
+        typeof value === 'string' &&
+        value.trim().length === 0
+      ) {
+        empty.push(safeName(field));
       }
     }
   }
@@ -131,12 +142,23 @@ export function toolValidationFeedback(
         typeof value !== expected
       ) {
         invalid.push(`${safeName(field)} (expected ${expected})`);
+      } else if (
+        expected === 'string' &&
+        !metadata.optional &&
+        typeof value === 'string' &&
+        value.trim().length === 0
+      ) {
+        empty.push(safeName(field));
       }
     }
   }
   const uniqueInvalid = [...new Set(invalid)];
   const invalidTypes = uniqueInvalid.length
     ? ` Invalid field types: ${uniqueInvalid.join(', ')}.`
+    : '';
+  const uniqueEmpty = [...new Set(empty)];
+  const emptyValues = uniqueEmpty.length
+    ? ` Required string fields must not be empty: ${uniqueEmpty.join(', ')}.`
     : '';
   const polling =
     canCheckBackground &&
@@ -145,5 +167,5 @@ export function toolValidationFeedback(
     Object.prototype.hasOwnProperty.call(input, 'background_task_id')
       ? ' To inspect an existing background task, call check_background_task with background_task_id.'
       : '';
-  return `Tool "${safeName(toolName)}" input failed schema validation.${missing}${invalidTypes} Use this tool's declared arguments.${polling}`;
+  return `Tool "${safeName(toolName)}" input failed schema validation.${missing}${invalidTypes}${emptyValues} Use this tool's declared arguments.${polling}`;
 }

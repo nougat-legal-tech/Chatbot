@@ -88,12 +88,44 @@ describe('toolValidationFeedback', () => {
         eventTypeId: z.string().min(1).nullable().optional(),
       }),
     });
-    const input = { startAt: '2026-10-21T09:00:00-04:00', endAt: 42, eventTypeId: null };
+    const input = {
+      startAt: '2026-10-21T09:00:00-04:00',
+      endAt: 42,
+      eventTypeId: null,
+      slug: '',
+    };
     const error = await searchSlots.invoke(input).catch((failure: Error) => failure);
     const feedback = toolValidationFeedback(error, searchSlots.name, searchSlots.schema, input);
 
     expect(execute).not.toHaveBeenCalled();
     expect(feedback).toContain('endAt (expected string)');
     expect(feedback).not.toContain('eventTypeId');
+    expect(feedback).not.toContain('Required string fields must not be empty: slug');
+  });
+
+  it('identifies empty required scheduling bounds without exposing input values', async () => {
+    const execute = jest.fn(async () => 'executed');
+    const searchSlots = tool(execute, {
+      name: 'search-scheduling-slots_action_YXBpLWRldi',
+      description: 'Search available scheduling slots',
+      schema: z.object({
+        startAt: z.string().min(1),
+        endAt: z.string().min(1),
+        eventTypeId: z.string().min(1).nullable().optional(),
+        slug: z.string().min(1).nullable().optional(),
+        timeZone: z.string().min(1).nullable().optional(),
+      }),
+    });
+    const input = {
+      startAt: '   ',
+      endAt: '',
+      eventTypeId: 'private-event-type',
+    };
+    const error = await searchSlots.invoke(input).catch((failure: Error) => failure);
+    const feedback = toolValidationFeedback(error, searchSlots.name, searchSlots.schema, input);
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(feedback).toContain('Required string fields must not be empty: startAt, endAt');
+    expect(feedback).not.toContain('private-event-type');
   });
 });

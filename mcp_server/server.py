@@ -283,7 +283,13 @@ async def get_case_metadata(
     return await _post(ctx, "/api/get-case-metadata/", payload)
 
 
-@mcp.tool(description="List action items and recommendations for a case.")
+@mcp.tool(
+    description=(
+        "List action items and recommendations for a case. For a SeriesAI company with no saved tasks, "
+        "set include_lifecycle_suggestions=true to also derive read-only follow-ups from its lifecycle stage, "
+        "important-date history, and existing legacy cap-table entries."
+    ),
+)
 async def list_action_items(
     ctx: Context,
     case_id: str,
@@ -295,6 +301,7 @@ async def list_action_items(
     include_archived: bool | None = None,
     parent_task_id: str | None = None,
     result_limit: int | None = None,
+    include_lifecycle_suggestions: bool | None = None,
 ) -> dict:
     return await _get(
         ctx,
@@ -309,6 +316,7 @@ async def list_action_items(
             "includeArchived": include_archived,
             "parentTaskId": parent_task_id,
             "resultLimit": result_limit,
+            "includeLifecycleSuggestions": include_lifecycle_suggestions,
         },
     )
 
@@ -1248,6 +1256,26 @@ async def save_seriesai_onboarding_context(
         "context": context,
     }
     return await _post(ctx, "/api/tools/execute/", {k: v for k, v in payload.items() if v is not None})
+
+
+@mcp.tool(
+    description=("Read the current Vienna cap table, including who holds what equity and ownership totals."),
+)
+async def get_seriesai_company_details(
+    ctx: Context,
+    organization_id: str,
+    app_id: str,
+) -> dict:
+    """Read company details and channel-ready summaries for an authorized SeriesAI company."""
+    return await _post(
+        ctx,
+        "/api/tools/execute/",
+        {
+            "toolName": "getCompanyDetails",
+            "organizationId": organization_id,
+            "appId": app_id,
+        },
+    )
 
 
 @mcp.tool(

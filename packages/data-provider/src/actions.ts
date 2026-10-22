@@ -110,9 +110,17 @@ const schemaTypeHandlers: Record<string, (schema: OpenAPISchema) => z.ZodTypeAny
           // before the action can run, even though the field is optional.
           // Normalize the empty value to omission so the request follows the
           // same path as a genuinely absent optional string.
+          const propertySchema = value as OpenAPIV3.SchemaObject;
           shape[key] =
-            (value as OpenAPIV3.SchemaObject).type === 'string'
-              ? z.preprocess((input) => (input === '' ? undefined : input), optionalSchema)
+            propertySchema.type === 'string' || propertySchema.nullable
+              ? z.preprocess(
+                  (input) =>
+                    (propertySchema.nullable && input === null) ||
+                    (propertySchema.type === 'string' && input === '')
+                      ? undefined
+                      : input,
+                  optionalSchema,
+                )
               : optionalSchema;
           shape[key] = shape[key].describe(value.description || '');
         }

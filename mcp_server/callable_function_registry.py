@@ -59,6 +59,16 @@ _EPONA_CHAT_RUN_TOOL_GUIDANCE = [
 _CHAT_RUN_TOOL_GUIDANCE = [
     *_EPONA_CHAT_RUN_TOOL_GUIDANCE,
     {
+        "name": "get_seriesai_company_details",
+        "operationIds": ["retrieve-company-details"],
+        "requiredInputs": ["organizationId", "appId"],
+        "mutatesState": False,
+        "invocationGuidance": (
+            "Read the company profile only for an authenticated SeriesAI company and app scope. "
+            "Returns the company details and the existing email/Slack summary fields."
+        ),
+    },
+    {
         "name": "list_clio_matters",
         "operationIds": ["list-clio-matters"],
         "requiredInputs": [],
@@ -618,6 +628,7 @@ _CHAT_RUN_EXPLICIT_CONFIRMATION_TOOLS = frozenset(
 
 
 _IN_HOUSE_FUNCTION_NAMES = frozenset(tool["name"] for tool in _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE)
+_SERIESAI_FUNCTION_NAMES = frozenset({"get_seriesai_company_details"})
 _FUNCTIONS: dict[str, dict[str, Any]] = {}
 for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
     _name = str(_tool["name"])
@@ -628,7 +639,11 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
         "functionId": _name,
         **_tool,
         "categoryId": categorize_function_name(_name),
-        "appIds": ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES else (),
+        "appIds": (
+            ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES
+            else ("3", "4") if _name in _SERIESAI_FUNCTION_NAMES
+            else ()
+        ),
     }
 
 FUNCTION_REGISTRY = MappingProxyType(_FUNCTIONS)
@@ -637,6 +652,14 @@ FUNCTION_REGISTRY = MappingProxyType(_FUNCTIONS)
 # ID. Keep this small and evidence-backed: a name match alone does not prove a
 # compatible implementation or request contract.
 MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
+    "get_seriesai_company_details": (
+        {
+            "name": "retrieve_company_details",
+            "operationId": "retrieve-company-details",
+            "surfaces": ["intent_handler", "chat_proxy"],
+            "verification": "operation_id_match_only",
+        },
+    ),
     "assign_action_item": (
         {
             "name": "assign_case_action_item",
