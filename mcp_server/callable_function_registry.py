@@ -660,6 +660,14 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "verification": "operation_id_match_only",
         },
     ),
+    "get_seriesai_company_cap_table": (
+        {
+            "name": "retrieve_cap_table",
+            "operationId": "retrieve-cap-table",
+            "surfaces": ["intent_handler", "chat_proxy"],
+            "verification": "operation_id_match_only",
+        },
+    ),
     "assign_action_item": (
         {
             "name": "assign_case_action_item",

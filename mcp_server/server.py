@@ -1278,6 +1278,24 @@ async def get_seriesai_company_details(
     )
 
 
+@mcp.tool(description="Read the company cap table with legacy-compatible ownership entries and summaries.")
+async def get_seriesai_company_cap_table(
+    ctx: Context,
+    organization_id: str,
+    app_id: str,
+) -> dict:
+    """Read the authenticated company's committed holders and embedded fallback entries."""
+    return await _post(
+        ctx,
+        "/api/tools/execute/",
+        {
+            "toolName": "getCompanyCapTable",
+            "organizationId": organization_id,
+            "appId": app_id,
+        },
+    )
+
+
 @mcp.tool(
     description=("Read the current Vienna cap table, including who holds what equity and ownership totals."),
 )
