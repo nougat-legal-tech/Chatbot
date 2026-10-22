@@ -16,7 +16,9 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
 
     assert index["version"] == 1
     assert index["categories"]
-    assert sum(item["count"] for item in index["categories"]) == len(server.mcp._tool_manager.list_tools()) - 1
+    # The map merges every callable MCP tool with Django chat-run guidance records.
+    callable_tools = {tool.name for tool in server.mcp._tool_manager.list_tools()} - {"browse_function_map"}
+    assert sum(item["count"] for item in index["categories"]) >= len(callable_tools)
     category = next(item for item in index["categories"] if item["id"] == "case_management")
     assert category["count"] > 0
     assert category["subcategories"]
@@ -25,11 +27,11 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert selected["category"]["id"] == "case_management"
     assert selected["functions"]
     assert all(record["categoryId"] == "case_management" for record in selected["functions"])
-    assert all("inputSchema" in record for record in selected["functions"])
+    assert all("inputSchema" in record for record in selected["functions"] if "mcp" in record["surfaces"])
     assert all(record["name"] != "browse_function_map" for record in selected["functions"])
 
     subgroup = category["subcategories"][0]
-    selected_subgroup = asyncio.run(server.browse_function_map(object(), category["id"], subgroup["id"]))
+    selected_subgroup = asyncio.run(server.browse_function_map(object(), category["id"], subcategory_id=subgroup["id"]))
     assert selected_subgroup["subcategory"]["id"] == subgroup["id"]
     assert len(selected_subgroup["functions"]) == subgroup["count"]
     assert all(record["subcategoryId"] == subgroup["id"] for record in selected_subgroup["functions"])
@@ -54,6 +56,7 @@ def test_action_item_filters_match_django_api_query_contract(monkeypatch):
             search="renewal",
             include_archived=False,
             parent_task_id="task-1",
+            result_limit=80,
         )
     )
 
@@ -68,5 +71,49 @@ def test_action_item_filters_match_django_api_query_contract(monkeypatch):
             "search": "renewal",
             "includeArchived": False,
             "parentTaskId": "task-1",
+            "resultLimit": 80,
+        },
+    }
+
+
+def test_important_date_filters_match_django_api_query_contract(monkeypatch):
+    captured = {}
+
+    async def fake_get(ctx, path, params=None):
+        captured.update(path=path, params=params)
+        return {"items": []}
+
+    monkeypatch.setattr(server, "_get", fake_get)
+    asyncio.run(
+        server.list_case_important_dates(
+            SimpleNamespace(),
+            case_id="company-1",
+            app_id="4",
+            date_from="2026-01-01",
+            date_to="2026-12-31",
+            event_type="lifecycle_transition",
+            source_kind="company_record",
+            practice_area="startup",
+            stage="seed",
+            exclude_external_calendar=True,
+            require_displayable=True,
+            result_limit=50,
+        )
+    )
+
+    assert captured == {
+        "path": "/api/case-important-dates/",
+        "params": {
+            "caseId": "company-1",
+            "appId": "4",
+            "dateFrom": "2026-01-01",
+            "dateTo": "2026-12-31",
+            "eventType": "lifecycle_transition",
+            "sourceKind": "company_record",
+            "practiceArea": "startup",
+            "stage": "seed",
+            "excludeExternalCalendar": True,
+            "requireDisplayable": True,
+            "resultLimit": 50,
         },
     }

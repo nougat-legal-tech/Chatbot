@@ -112,7 +112,7 @@ def test_search_scheduling_slots_accepts_legacy_action_arguments(monkeypatch):
     }
 
 
-def test_action_specs_preserve_supported_aliases_and_allow_nullable_inputs():
+def test_action_specs_require_canonical_time_bounds_and_keep_selectors_nullable():
     config_dir = MODULE_PATH.parents[1] / "config"
     for filename in (
         "juristai-agent-action-spec.json",
@@ -122,11 +122,6 @@ def test_action_specs_preserve_supported_aliases_and_allow_nullable_inputs():
         operation = spec["paths"]["/api/core/scheduling/slots"]["get"]
         parameters = {item["name"]: item for item in operation["parameters"]}
         assert "never use it to set Outlook email follow-up due dates" in operation["description"]
-        assert set(parameters) == {
-            "bookingUid", "endAt", "endTime", "end_time", "end_at",
-            "eventTypeId", "event_type_id", "reservationUid", "slug",
-            "startTime", "start_time", "start_at", "startAt",
-            "timeZone", "time_zone", "timezone", "token",
-        }
-        assert not any(parameter.get("required") for parameter in parameters.values())
-        assert all(parameter["schema"].get("nullable") for parameter in parameters.values())
+        assert set(parameters) == {"startAt", "endAt", "eventTypeId", "slug", "timeZone"}
+        assert {name for name, parameter in parameters.items() if parameter.get("required")} == {"startAt", "endAt"}
+        assert all(parameters[name]["schema"].get("nullable") for name in ("eventTypeId", "slug", "timeZone"))

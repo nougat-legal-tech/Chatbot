@@ -23,6 +23,13 @@ const SPEC_PATH = require('path').resolve(
   'config',
   'juristai-agent-action-spec.json',
 );
+const STAGED_SAFE_SPEC_PATH = require('path').resolve(
+  __dirname,
+  '..',
+  '..',
+  'config',
+  'juristai-agent-action-spec.STAGED-SAFE.json',
+);
 // Derived from the spec instead of hardcoded, so this test tracks the real
 // django llm-tools catalog size instead of needing a manual bump every time
 // an operation is added or removed.
@@ -172,37 +179,36 @@ describe('ensure-juristai-agent-action (infra-as-code guard)', () => {
 });
 
 describe('juristai scheduling slot action contract', () => {
-  test('preserves aliases and allows nullable optional scheduling arguments', () => {
-    const spec = JSON.parse(require('fs').readFileSync(SPEC_PATH, 'utf8'));
-    const operation = spec.paths['/api/core/scheduling/slots'].get;
-    const parameters = Object.fromEntries(
-      operation.parameters.map((parameter) => [parameter.name, parameter]),
-    );
+  test.each([
+    ['primary', SPEC_PATH],
+    ['staged-safe', STAGED_SAFE_SPEC_PATH],
+  ])(
+    '%s spec requires canonical time bounds and keeps optional selectors nullable',
+    (_name, specPath) => {
+      const spec = JSON.parse(require('fs').readFileSync(specPath, 'utf8'));
+      const operation = spec.paths['/api/core/scheduling/slots'].get;
+      const parameters = Object.fromEntries(
+        operation.parameters.map((parameter) => [parameter.name, parameter]),
+      );
 
-    expect(Object.keys(parameters).sort()).toEqual([
-      'bookingUid',
-      'endAt',
-      'endTime',
-      'end_at',
-      'end_time',
-      'eventTypeId',
-      'event_type_id',
-      'reservationUid',
-      'slug',
-      'startAt',
-      'startTime',
-      'start_at',
-      'start_time',
-      'timeZone',
-      'time_zone',
-      'timezone',
-      'token',
-    ]);
-    expect(operation.parameters.every((parameter) => !parameter.required)).toBe(true);
-    expect(operation.parameters.every((parameter) => parameter.schema.nullable === true)).toBe(
-      true,
-    );
-  });
+      expect(Object.keys(parameters).sort()).toEqual([
+        'endAt',
+        'eventTypeId',
+        'slug',
+        'startAt',
+        'timeZone',
+      ]);
+      expect(
+        operation.parameters
+          .filter((parameter) => parameter.required)
+          .map((parameter) => parameter.name)
+          .sort(),
+      ).toEqual(['endAt', 'startAt']);
+      expect(parameters.eventTypeId.schema.nullable).toBe(true);
+      expect(parameters.slug.schema.nullable).toBe(true);
+      expect(parameters.timeZone.schema.nullable).toBe(true);
+    },
+  );
 });
 
 describe('juristai agent action spec — parity denylist', () => {

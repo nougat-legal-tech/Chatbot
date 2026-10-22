@@ -35,7 +35,13 @@ def test_remove_legal_team_member_uses_member_identity_fields(monkeypatch):
     calls = _capture_post(monkeypatch)
     ctx = object()
 
-    result = asyncio.run(server.remove_legal_team_member(ctx, "team-1", member_email="member@example.com", app_id="4"))
+    result = asyncio.run(server.remove_legal_team_member(
+            ctx,
+            "team-1",
+            member_email="member@example.com",
+            app_id="4",
+            confirmation="CONFIRM LEGAL TEAM ACCESS CHANGE",
+        ))
 
     assert result == {"legalTeamId": "team-1", "appId": "4", "memberEmail": "member@example.com"}
     assert calls == [(ctx, "/api/remove-legal-team-member/", result)]
@@ -45,7 +51,7 @@ def test_delete_legal_team_forwards_product_scope(monkeypatch):
     calls = _capture_post(monkeypatch)
     ctx = object()
 
-    result = asyncio.run(server.delete_legal_team(ctx, "team-1", "4"))
+    result = asyncio.run(server.delete_legal_team(ctx, "team-1", "4", confirmation="CONFIRM LEGAL TEAM DELETE"))
 
     assert result == {"legalTeamId": "team-1", "appId": "4"}
     assert calls == [(ctx, "/api/delete-legal-team/", result)]
@@ -55,7 +61,9 @@ def test_assign_legal_team_to_case_forwards_product_scope(monkeypatch):
     calls = _capture_post(monkeypatch)
     ctx = object()
 
-    result = asyncio.run(server.assign_legal_team_to_case(ctx, "team-1", "case-1", "4"))
+    result = asyncio.run(server.assign_legal_team_to_case(
+            ctx, "team-1", "case-1", "4", confirmation="CONFIRM LEGAL TEAM ACCESS CHANGE"
+        ))
 
     assert result == {"legalTeamId": "team-1", "appId": "4", "caseId": "case-1"}
     assert calls == [(ctx, "/api/assign-legal-team-to-case/", result)]

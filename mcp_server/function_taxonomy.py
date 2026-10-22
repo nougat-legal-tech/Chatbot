@@ -108,19 +108,28 @@ _FUNCTION_GROUPS: tuple[dict[str, Any], ...] = (
         "id": "find_read",
         "label": "Find and read",
         "description": "Search, list, retrieve, inspect, or preview existing information.",
-        "pattern": re.compile(r"^(get|list|search|find|retrieve|read|fetch|load|query|view|inspect|preview|check|describe|lookup|show)_", re.I),
+        "pattern": re.compile(
+            r"^(get|list|search|find|retrieve|read|fetch|load|query|view|inspect|preview|check|describe|lookup|show)_",
+            re.I,
+        ),
     },
     {
         "id": "create_update",
         "label": "Create and update",
         "description": "Create, edit, assign, send, or remove records and settings.",
-        "pattern": re.compile(r"^(create|add|update|edit|set|save|delete|remove|assign|send|submit|upload|bulk|archive|restore|connect|disconnect|invite|revoke|accept|decline)_", re.I),
+        "pattern": re.compile(
+            r"^(create|add|update|edit|set|save|delete|remove|assign|send|submit|upload|bulk|archive|restore|connect|disconnect|invite|revoke|accept|decline)_",
+            re.I,
+        ),
     },
     {
         "id": "analyze_generate",
         "label": "Analyze and generate",
         "description": "Analyze, summarize, compare, draft, or generate a result.",
-        "pattern": re.compile(r"^(analy[sz]e|summari[sz]e|compare|draft|generate|extract|score|recommend|calculate|classify|review|process)_", re.I),
+        "pattern": re.compile(
+            r"^(analy[sz]e|summari[sz]e|compare|draft|generate|extract|score|recommend|calculate|classify|review|process)_",
+            re.I,
+        ),
     },
 )
 

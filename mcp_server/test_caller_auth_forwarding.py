@@ -100,7 +100,7 @@ def test_mcp_zoom_disconnect_forwards_selected_app_scope(monkeypatch):
 
     assert result == {"ok": True}
     assert calls == [
-            ("POST", "/api/core/integrations/conferencing/zoom-2/disconnect/", {"content": '{"appId": "4"}'}),
+            ("POST", "/api/core/integrations/conferencing/zoom-2/disconnect", {"content": '{"appId": "4"}'}),
     ]
 
 

@@ -33,6 +33,7 @@ def test_precedent_query_forwards_authenticated_query_route_and_product_scope(mo
         "query": "arbitrary and capricious review",
         "caseId": "case-73181283",
         "appId": "2",
+        "responseOnly": True,
     }
     assert calls == [
         (
@@ -42,6 +43,7 @@ def test_precedent_query_forwards_authenticated_query_route_and_product_scope(mo
                 "query": "arbitrary and capricious review",
                 "caseId": "case-73181283",
                 "appId": "2",
+                "responseOnly": True,
             },
         )
     ]
