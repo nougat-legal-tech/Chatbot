@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { tool } from '@librechat/agents/langchain/tools';
 import { toolValidationFeedback } from './validationFeedback';
 
@@ -51,5 +52,48 @@ describe('toolValidationFeedback', () => {
     expect(feedback).toContain('command (expected string)');
     expect(feedback).not.toContain('never-echo');
     expect(execute).not.toHaveBeenCalled();
+  });
+
+  it('reports missing fields from a generated Zod action schema without disclosing values', async () => {
+    const execute = jest.fn(async () => 'executed');
+    const searchSlots = tool(execute, {
+      name: 'search-scheduling-slots_action_YXBpLWRldi',
+      description: 'Search available scheduling slots',
+      schema: z.object({
+        startAt: z.string().min(1),
+        endAt: z.string().min(1),
+        eventTypeId: z.string().min(1).nullable().optional(),
+        slug: z.string().min(1).nullable().optional(),
+        timeZone: z.string().min(1).nullable().optional(),
+      }),
+    });
+    const input = { private: 'never-echo' };
+    const error = await searchSlots.invoke(input).catch((failure: Error) => failure);
+    const feedback = toolValidationFeedback(error, searchSlots.name, searchSlots.schema, input);
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(feedback).toContain('Missing required fields: startAt, endAt');
+    expect(feedback).not.toContain('private');
+    expect(feedback).not.toContain('never-echo');
+  });
+
+  it('reports invalid Zod field types but accepts null for nullable optional fields', async () => {
+    const execute = jest.fn(async () => 'executed');
+    const searchSlots = tool(execute, {
+      name: 'search-scheduling-slots_action_YXBpLWRldi',
+      description: 'Search available scheduling slots',
+      schema: z.object({
+        startAt: z.string().min(1),
+        endAt: z.string().min(1),
+        eventTypeId: z.string().min(1).nullable().optional(),
+      }),
+    });
+    const input = { startAt: '2026-10-21T09:00:00-04:00', endAt: 42, eventTypeId: null };
+    const error = await searchSlots.invoke(input).catch((failure: Error) => failure);
+    const feedback = toolValidationFeedback(error, searchSlots.name, searchSlots.schema, input);
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(feedback).toContain('endAt (expected string)');
+    expect(feedback).not.toContain('eventTypeId');
   });
 });
