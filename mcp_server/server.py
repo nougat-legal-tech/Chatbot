@@ -9,8 +9,8 @@ Run:
 
 Required env vars:
     DJANGO_API_BASE_URL   Base URL of the django-hub API (e.g. https://api-dev.juristai.org)
-    MCP_SERVER_SECRET     Optional shared secret that LibreChat includes in X-MCP-Secret
-                          to gate access (leave blank to disable the check).
+    MCP_SERVER_SECRET     Required shared secret that LibreChat includes in X-MCP-Secret.
+                          Requests are rejected when missing or incorrect.
 
 The server picks up the caller's Authorization header (Bearer <token>) from the
 MCP request context and forwards it verbatim to every Django endpoint so Django's
@@ -20,6 +20,7 @@ normal JWT auth applies.
 import asyncio
 import json
 import os
+import secrets
 from typing import Any
 from urllib.parse import quote
 
@@ -3880,9 +3881,8 @@ async def create_new_case(
     return await _post(ctx, "/api/create-new-case/", payload)
 
 
-
 @mcp.tool(description="Start a SAFE draft workflow for a Vienna venture investor and queue it for user approval.")
-async def series_ai_trigger_safe_draft(  # noqa: PLR0913 - MCP tool schema is intentionally flat
+async def series_ai_trigger_safe_draft(
     ctx: Context,
     app_id: str,
     organization_id: str,
@@ -3952,7 +3952,7 @@ async def series_ai_query_cap_table_ownership(
 
 
 @mcp.tool(description="Schedule a venture compliance deadline (83(b) election, Form D, franchise tax, etc.).")
-async def series_ai_schedule_compliance_deadline(  # noqa: PLR0913 - MCP tool schema is intentionally flat
+async def series_ai_schedule_compliance_deadline(
     ctx: Context,
     app_id: str,
     organization_id: str,
@@ -3980,7 +3980,7 @@ async def series_ai_schedule_compliance_deadline(  # noqa: PLR0913 - MCP tool sc
 
 
 @mcp.tool(description="Request signatures on a Vienna document instance and queue it for user approval.")
-async def series_ai_request_signatures_via_email(  # noqa: PLR0913 - MCP tool schema is intentionally flat
+async def series_ai_request_signatures_via_email(
     ctx: Context,
     app_id: str,
     organization_id: str,
@@ -4001,8 +4001,10 @@ async def series_ai_request_signatures_via_email(  # noqa: PLR0913 - MCP tool sc
     return await _post(ctx, "/api/tools/execute/", payload)
 
 
-@mcp.tool(description="Invite an external deal participant (investor, accelerator, or deal-side lawyer) to a Vienna venture workspace.")
-async def series_ai_invite_external_participant(  # noqa: PLR0913 - MCP tool schema is intentionally flat
+@mcp.tool(
+    description="Invite an external deal participant (investor, accelerator, or deal-side lawyer) to a Vienna venture workspace."
+)
+async def series_ai_invite_external_participant(
     ctx: Context,
     app_id: str,
     organization_id: str,
@@ -4129,17 +4131,17 @@ async def browse_function_map(
 
 
 class SecretGateMiddleware(BaseHTTPMiddleware):
-    """Reject requests that don't include the shared MCP_SERVER_SECRET when set."""
+    """Require the configured shared secret for every MCP HTTP request."""
 
     async def dispatch(self, request: Request, call_next):
-        if MCP_SERVER_SECRET:
-            provided = request.headers.get("x-mcp-secret", "")
-            if provided != MCP_SERVER_SECRET:
-                return JSONResponse({"error": "forbidden"}, status_code=403)
+        if not MCP_SERVER_SECRET:
+            return JSONResponse({"error": "mcp_auth_not_configured"}, status_code=503)
+        provided = request.headers.get("x-mcp-secret", "")
+        if not secrets.compare_digest(provided, MCP_SERVER_SECRET):
+            return JSONResponse({"error": "forbidden"}, status_code=403)
         return await call_next(request)
 
 
 app = mcp.streamable_http_app()
 
-if MCP_SERVER_SECRET:
-    app.add_middleware(SecretGateMiddleware)
+app.add_middleware(SecretGateMiddleware)

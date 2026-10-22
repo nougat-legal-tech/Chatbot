@@ -1299,31 +1299,37 @@ describe('createURL', () => {
         const slotSignature = functionSignatures.find(
           (signature) => signature.name === 'search-scheduling-slots',
         );
-        expect(slotSignature?.parameters.required).toEqual([]);
-        expect(slotSignature?.description).toContain('Search available scheduling slots.');
+        expect(slotSignature?.parameters.required).toEqual(['endAt', 'startAt']);
         expect(slotSignature?.description).toContain(
-          'identify the event type with eventTypeId, event_type_id, or slug',
+          'Search meeting availability for an event type.',
+        );
+        expect(slotSignature?.description).toContain(
+          'identify the event type with eventTypeId or slug',
         );
         expect(slotSignature?.description).toContain(
           'never use it to set Outlook email follow-up due dates',
         );
-        const slotInput = actionSchemas?.['search-scheduling-slots']?.safeParse({
-          startAt: null,
-          endAt: null,
-          eventTypeId: null,
-          slug: '',
-          timeZone: '',
-          bookingUid: '',
-          start_time: '2026-10-21T09:00:00-04:00',
-          end_time: '2026-10-21T17:00:00-04:00',
-          event_type_id: 'event-type-1',
+        const slotSchema = actionSchemas?.['search-scheduling-slots'];
+        const slotInput = slotSchema?.safeParse({
+          startAt: '2026-10-21T09:00:00-04:00',
+          endAt: '2026-10-21T17:00:00-04:00',
+          eventTypeId: 'event-type-1',
+          slug: null,
+          timeZone: null,
         });
         expect(slotInput?.success).toBe(true);
         if (slotInput?.success) {
           expect(slotInput.data.slug).toBeUndefined();
           expect(slotInput.data.timeZone).toBeUndefined();
-          expect(slotInput.data.bookingUid).toBeUndefined();
         }
+        expect(slotSchema?.safeParse({ eventTypeId: 'event-type-1' }).success).toBe(false);
+        expect(
+          slotSchema?.safeParse({
+            startAt: null,
+            endAt: '2026-10-21T17:00:00-04:00',
+            eventTypeId: 'event-type-1',
+          }).success,
+        ).toBe(false);
       }
     });
 
