@@ -419,7 +419,7 @@ async def edit_case_action_items(
 @mcp.tool(
     description=(
         "List deadlines and important dates for an authorized case. Optionally filter by date range, event type, "
-        "source kind, practice area, or lifecycle stage; optionally exclude provider-imported calendar rows; "
+        "source kind, practice area, or lifecycle stage; optionally exclude provider-imported calendar rows or booking projections; "
         "optionally require at least one displayable date or event label, and limit the returned items."
     )
 )
@@ -434,6 +434,7 @@ async def list_case_important_dates(
     practice_area: str | None = None,
     stage: str | None = None,
     exclude_external_calendar: bool | None = None,
+    exclude_booking_projections: bool | None = None,
     require_displayable: bool | None = None,
     result_limit: int | None = None,
 ) -> dict:
@@ -447,6 +448,7 @@ async def list_case_important_dates(
         ("practiceArea", practice_area),
         ("stage", stage),
         ("excludeExternalCalendar", exclude_external_calendar),
+        ("excludeBookingProjections", exclude_booking_projections),
         ("requireDisplayable", require_displayable),
         ("resultLimit", result_limit),
     ):

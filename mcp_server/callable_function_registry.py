@@ -721,12 +721,30 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "surfaces": ["chat_proxy", "intent_handler"],
             "verification": "operation_id_match_only",
         },
+        {
+            "name": "retrieve_company_action_items",
+            "operationId": "retrieve-company-action-items",
+            "surfaces": ["intent_handler", "chat_proxy"],
+            "verification": "operation_id_match_only",
+        },
     ),
     "list_case_important_dates": (
         {
             "name": "retrieve_case_important_dates",
             "operationId": "list-case-important-dates",
             "surfaces": ["chat_proxy", "intent_handler"],
+            "verification": "operation_id_match_only",
+        },
+        {
+            "name": "retrieve_company_timeline",
+            "operationId": "retrieve-company-timeline",
+            "surfaces": ["intent_handler", "chat_proxy"],
+            "verification": "operation_id_match_only",
+        },
+        {
+            "name": "retrieve_company_deadlines",
+            "operationId": "retrieve-company-deadlines",
+            "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "operation_id_match_only",
         },
     ),

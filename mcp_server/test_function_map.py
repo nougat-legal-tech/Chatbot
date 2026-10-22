@@ -104,6 +104,7 @@ def test_important_date_filters_match_django_api_query_contract(monkeypatch):
             practice_area="startup",
             stage="seed",
             exclude_external_calendar=True,
+            exclude_booking_projections=True,
             require_displayable=True,
             result_limit=50,
         )
@@ -121,6 +122,7 @@ def test_important_date_filters_match_django_api_query_contract(monkeypatch):
             "practiceArea": "startup",
             "stage": "seed",
             "excludeExternalCalendar": True,
+            "excludeBookingProjections": True,
             "requireDisplayable": True,
             "resultLimit": 50,
         },
