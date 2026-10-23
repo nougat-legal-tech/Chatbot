@@ -854,6 +854,9 @@ def universal_function_records(
             if not name:
                 continue
             record["surfaces"] = ["chat_run"]
+            compatibility = MCP_CALLER_COMPATIBILITY.get(name)
+            if compatibility:
+                record["callerAliases"] = deepcopy(list(compatibility))
             merged[name] = record
 
     for source_record in mcp_records or []:
@@ -871,6 +874,7 @@ def universal_function_records(
             record.update(
                 {
                     "functionId": name,
+                    "categoryId": categorize_function_name(name),
                     "operationIds": [name],
                     "requiredInputs": list(required) if isinstance(required, list) else [],
                     "surfaces": ["mcp"],
