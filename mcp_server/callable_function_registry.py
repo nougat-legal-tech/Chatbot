@@ -61,10 +61,10 @@ _CHAT_RUN_TOOL_GUIDANCE = [
     {
         "name": "get_seriesai_company_details",
         "operationIds": ["retrieve-company-details"],
-        "requiredInputs": ["organizationId", "appId"],
+        "requiredInputs": ["caseId", "appId"],
         "mutatesState": False,
         "invocationGuidance": (
-            "Read the company profile only for an authenticated SeriesAI company and app scope. "
+            "Read the company profile for the authenticated SeriesAI caseId and appId scope. "
             "Returns the company details and the existing email/Slack summary fields."
         ),
     },

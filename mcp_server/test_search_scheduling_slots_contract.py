@@ -70,6 +70,16 @@ def test_search_scheduling_slots_accepts_slug_and_requires_selector(monkeypatch)
 
 
 
+def test_search_scheduling_slots_rejects_missing_time_bounds():
+    with pytest.raises(ValueError, match="startAt and endAt are required"):
+        asyncio.run(
+            server.search_scheduling_slots(
+                object(),
+                eventTypeId="event-type-1",
+            )
+        )
+
+
 def test_search_scheduling_slots_accepts_api_camel_case_arguments(monkeypatch):
     async def fake_get(_ctx, _path, params):
         return params
@@ -112,7 +122,7 @@ def test_search_scheduling_slots_accepts_legacy_action_arguments(monkeypatch):
     }
 
 
-def test_action_specs_require_canonical_time_bounds_and_keep_selectors_nullable():
+def test_action_specs_accept_canonical_and_legacy_time_bounds():
     config_dir = MODULE_PATH.parents[1] / "config"
     for filename in (
         "juristai-agent-action-spec.json",
@@ -122,6 +132,12 @@ def test_action_specs_require_canonical_time_bounds_and_keep_selectors_nullable(
         operation = spec["paths"]["/api/core/scheduling/slots"]["get"]
         parameters = {item["name"]: item for item in operation["parameters"]}
         assert "never use it to set Outlook email follow-up due dates" in operation["description"]
-        assert set(parameters) == {"startAt", "endAt", "eventTypeId", "slug", "timeZone"}
-        assert {name for name, parameter in parameters.items() if parameter.get("required")} == {"startAt", "endAt"}
-        assert all(parameters[name]["schema"].get("nullable") for name in ("eventTypeId", "slug", "timeZone"))
+        assert set(parameters) == {
+            "startAt", "endAt", "eventTypeId", "event_type_id", "slug",
+            "start_at", "startTime", "start_time", "end_at", "endTime", "end_time",
+            "timeZone", "time_zone", "timezone",
+        }
+        assert not any(parameter.get("required") for parameter in parameters.values())
+        assert all(parameters[name]["schema"].get("nullable") for name in (
+            "eventTypeId", "event_type_id", "slug", "timeZone", "time_zone", "timezone"
+        ))

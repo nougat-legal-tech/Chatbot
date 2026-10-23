@@ -1265,17 +1265,19 @@ async def save_seriesai_onboarding_context(
 )
 async def get_seriesai_company_details(
     ctx: Context,
-    organization_id: str,
-    app_id: str,
+    caseId: str,
+    appId: str,
 ) -> dict:
-    """Read company details and channel-ready summaries for an authorized SeriesAI company."""
+    """Read details for the authenticated SeriesAI company identified by caseId."""
     return await _post(
         ctx,
         "/api/tools/execute/",
         {
             "toolName": "getCompanyDetails",
-            "organizationId": organization_id,
-            "appId": app_id,
+            # SeriesAI's organizationId is the company caseId, not the actor's
+            # firm tenant. Keep the MCP input aligned with trusted chat scope.
+            "organizationId": caseId,
+            "appId": appId,
         },
     )
 
