@@ -657,7 +657,7 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "name": "retrieve_company_details",
             "operationId": "retrieve-company-details",
             "surfaces": ["intent_handler", "chat_proxy"],
-            "verification": "operation_id_match_only",
+            "verification": "verified_shared_operation_id",
         },
     ),
     "get_seriesai_company_cap_table": (

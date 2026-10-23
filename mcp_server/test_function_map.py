@@ -35,6 +35,7 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
         record for record in company_operations["functions"] if record["name"] == "get_seriesai_company_details"
     )
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
+    assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
 
     subgroup = category["subcategories"][0]
     selected_subgroup = asyncio.run(server.browse_function_map(object(), category["id"], subcategory_id=subgroup["id"]))
