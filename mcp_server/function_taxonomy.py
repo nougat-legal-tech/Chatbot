@@ -72,7 +72,10 @@ _CATEGORY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "signatures_approvals",
         re.compile(r"signature|signer|docusign|envelope|recipient|approval|pending_action|self_sign", re.I),
     ),
-    ("communications", re.compile(r"email|message|communication|slack|whatsapp|teams|otter|outbound", re.I)),
+    (
+        "communications",
+        re.compile(r"email|message|communication|slack|whatsapp|teams|otter|outbound|inbox|thread", re.I),
+    ),
     (
         "company_operations",
         re.compile(
@@ -80,11 +83,14 @@ _CATEGORY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
             re.I,
         ),
     ),
-    ("contracts_workflows", re.compile(r"contract|obligation|counterparty|in_house|playbook|review_finding", re.I)),
+    (
+        "contracts_workflows",
+        re.compile(r"contract|obligation|counterparty|in_house|playbook|review_finding|negotiation|engagement", re.I),
+    ),
     (
         "documents_research",
         re.compile(
-            r"document|template|precedent|motion|filing|lawsuit|demand_letter|research|knowledge|summary|excerpt|artifact|upload|draft|adversarial|rag|query_processor|processor|critique",
+            r"document|template|precedent|motion|filing|lawsuit|demand_letter|research|knowledge|summary|excerpt|artifact|upload|draft|adversarial|rag|query_processor|processor|critique|tabular_review",
             re.I,
         ),
     ),

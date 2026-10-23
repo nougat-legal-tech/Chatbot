@@ -420,7 +420,9 @@ async def edit_case_action_items(
     description=(
         "List deadlines and important dates for an authorized case. Optionally filter by date range, event type, "
         "source kind, practice area, or lifecycle stage; optionally exclude provider-imported calendar rows or booking projections; "
-        "optionally require at least one displayable date or event label, and limit the returned items."
+        "optionally require at least one displayable date or event label, select ascending or descending date order, "
+        "and limit the returned items. For a historical timeline, use descending order and exclude external calendar "
+        "rows, booking projections, and non-displayable rows."
     )
 )
 async def list_case_important_dates(
@@ -437,6 +439,7 @@ async def list_case_important_dates(
     exclude_booking_projections: bool | None = None,
     require_displayable: bool | None = None,
     result_limit: int | None = None,
+    sort_order: str | None = None,
 ) -> dict:
     params = {"caseId": case_id}
     for key, value in (
@@ -451,6 +454,7 @@ async def list_case_important_dates(
         ("excludeBookingProjections", exclude_booking_projections),
         ("requireDisplayable", require_displayable),
         ("resultLimit", result_limit),
+        ("sortOrder", sort_order),
     ):
         _set_payload_value(params, key, value)
     return await _get(ctx, "/api/case-important-dates/", params)
@@ -1261,12 +1265,12 @@ async def save_seriesai_onboarding_context(
 
 
 @mcp.tool(
-    description=("Read the current Vienna cap table, including who holds what equity and ownership totals."),
+    description=("Read the authenticated company's profile and existing channel-ready company summaries."),
 )
 async def get_seriesai_company_details(
     ctx: Context,
-    caseId: str,
-    appId: str,
+    caseId: str,  # noqa: N803 - MCP schema exposes camelCase fields.
+    appId: str,  # noqa: N803 - MCP schema exposes camelCase fields.
 ) -> dict:
     """Read details for the authenticated SeriesAI company identified by caseId."""
     return await _post(

@@ -69,6 +69,16 @@ _CHAT_RUN_TOOL_GUIDANCE = [
         ),
     },
     {
+        "name": "get_seriesai_company_cap_table",
+        "operationIds": ["retrieve-cap-table"],
+        "requiredInputs": ["caseId", "appId"],
+        "mutatesState": False,
+        "invocationGuidance": (
+            "Read the cap table for the authenticated SeriesAI caseId and appId scope. "
+            "Returns company ownership entries and summary fields."
+        ),
+    },
+    {
         "name": "list_clio_matters",
         "operationIds": ["list-clio-matters"],
         "requiredInputs": [],
@@ -430,7 +440,7 @@ _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE = [
     {
         "name": "create_in_house_request",
         "operationIds": ["in-house-request-create"],
-        "requiredInputs": ["subject", "description"],
+        "requiredInputs": ["subject", "description", "idempotencyKey"],
         "mutatesState": True,
         "invocationGuidance": (
             "Require explicit user confirmation of the request details before creating it. Set source_channel to "
@@ -482,7 +492,7 @@ _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE = [
     {
         "name": "create_in_house_request_comment",
         "operationIds": ["in-house-request-comment-create"],
-        "requiredInputs": ["request_id", "body"],
+        "requiredInputs": ["request_id", "body", "idempotencyKey"],
         "mutatesState": True,
         "invocationGuidance": (
             "Add the user's explicitly provided facts or follow-up to the authenticated organization's request."
@@ -491,7 +501,7 @@ _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE = [
     {
         "name": "transition_in_house_request",
         "operationIds": ["in-house-request-transition"],
-        "requiredInputs": ["request_id", "status"],
+        "requiredInputs": ["request_id", "status", "idempotencyKey"],
         "mutatesState": True,
         "invocationGuidance": ("Transition only the explicitly identified request to the user-confirmed status."),
     },
@@ -616,6 +626,186 @@ _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE = [
     },
 ]
 
+# These are the remaining ordinary chat-proxy capabilities without an exact
+# MCP tool or an existing chat-run registry record. Keep them visible in the
+# universal map while their established chat-proxy executor remains in place.
+# They are catalog records only: do not advertise them as MCP-executable or
+# resolve their operation IDs as aliases until contract parity is verified.
+_CHAT_PROXY_ONLY_FUNCTION_RECORDS = [
+    {
+        "functionId": "create_knowledge_record_proposal",
+        "name": "create_knowledge_record_proposal",
+        "operationIds": ["create-knowledge-record-proposal"],
+        "description": (
+            "Extract a source-linked legal or company fact from the current authorized "
+            "conversation and create a reviewable proposal."
+        ),
+        "requiredInputs": ["appId", "scopeType", "scopeId", "sources", "idempotencyKey"],
+        "mutatesState": True,
+        "invocationGuidance": (
+            "Creates a pending approval proposal; do not claim the fact was committed. "
+            "Include the returned review URL when present."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "create_negotiation_memory_proposal",
+        "name": "create_negotiation_memory_proposal",
+        "operationIds": ["create-negotiation-memory-proposal"],
+        "description": (
+            "Extract a source-linked negotiation memory from the current authorized "
+            "conversation and create a reviewable proposal."
+        ),
+        "requiredInputs": ["appId", "scopeType", "scopeId", "sources", "idempotencyKey"],
+        "mutatesState": True,
+        "invocationGuidance": (
+            "Creates a pending approval proposal; do not claim the memory was committed. "
+            "Include the returned review URL when present."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "decide_meeting_suggestion",
+        "name": "decide_meeting_suggestion",
+        "operationIds": ["decide-meeting-suggestion"],
+        "description": (
+            "List pending meeting suggestions or act on one by booking, dismissing, "
+            "requesting availability, or rescheduling."
+        ),
+        "requiredInputs": [],
+        "mutatesState": True,
+        "invocationGuidance": (
+            "Use no decision to list. Apply a decision only from the user's explicit "
+            "choice; rescheduling requires a concrete future ISO 8601 start time."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "edit_company_action_items",
+        "name": "edit_company_action_items",
+        "operationIds": ["edit-company-action-items", "seriesai-company-action-items"],
+        "description": "Explicitly add, assign, update, complete, cancel, or delete Vienna company action items.",
+        "requiredInputs": ["caseId", "operation"],
+        "mutatesState": True,
+        "invocationGuidance": (
+            "Use only for an explicit company-task change. For read-only requests, use "
+            "the company action-item retrieval operation. Preserve app and company scope."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "generate_engagement_letter",
+        "name": "generate_engagement_letter",
+        "operationIds": ["engagement-letter-signature", "generate_engagement_letter"],
+        "description": "Start the asynchronous engagement-letter workflow and signature process.",
+        "requiredInputs": [],
+        "mutatesState": True,
+        "startsAsyncWorkflow": True,
+        "sendsUserEmail": True,
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "import_cap_table_file",
+        "name": "import_cap_table_file",
+        "operationIds": ["import-cap-table-file"],
+        "description": (
+            "Import a completed cap-table spreadsheet into the company workspace after " "explicit confirmation."
+        ),
+        "requiredInputs": ["caseId", "fileName", "s3Bucket", "s3Key", "confirm"],
+        "mutatesState": True,
+        "requiresExplicitConfirmation": True,
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "import_clio_version",
+        "name": "import_clio_version",
+        "operationIds": ["import-clio-version"],
+        "description": "Import one explicitly selected Clio document version into a case.",
+        "requiredInputs": ["caseId", "matterId", "documentId", "versionId", "confirm"],
+        "mutatesState": True,
+        "startsAsyncWorkflow": True,
+        "requiresExplicitConfirmation": True,
+        "invocationGuidance": (
+            "Import only the exact user-selected version after confirmation of both the "
+            "version and destination case."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "manage_legal_team",
+        "name": "manage_legal_team",
+        "operationIds": [
+            "list-legal-team-members",
+            "rename-legal-team",
+            "remove-legal-team-member",
+            "assign-legal-team-to-case",
+            "delete-legal-team",
+        ],
+        "description": (
+            "Manage legal-team membership, naming, deletion, and case assignment for " "admin-authorized users."
+        ),
+        "mutatesState": True,
+        "requiresExplicitConfirmation": True,
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "map_inbox_review_thread",
+        "name": "map_inbox_review_thread",
+        "operationIds": ["map-inbox-review-thread"],
+        "description": "Assign a reviewed inbox thread to a case after explicit confirmation.",
+        "requiredInputs": ["caseId", "integrationId", "providerThreadId", "confirm"],
+        "mutatesState": True,
+        "requiresExplicitConfirmation": True,
+        "invocationGuidance": (
+            "Identify the exact provider thread and destination case before asking the " "user to confirm the mapping."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "playbook_review",
+        "name": "playbook_review",
+        "operationIds": ["playbook-review"],
+        "description": (
+            "Evaluate a supplied document against explicit legal playbook positions "
+            "and return anchored verdicts and redlines."
+        ),
+        "requiredInputs": ["caseId", "documentText"],
+        "mutatesState": False,
+        "invocationGuidance": (
+            "Use only when the user supplies or selects a playbook position set; this is "
+            "a structured review, not a general critique."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+    {
+        "functionId": "tabular_review",
+        "name": "tabular_review",
+        "operationIds": ["tabular-review"],
+        "description": (
+            "Compare multiple matter documents in a source-grounded table using "
+            "requested or document-specific review dimensions."
+        ),
+        "requiredInputs": ["caseId", "documents", "columns"],
+        "mutatesState": False,
+        "invocationGuidance": (
+            "Use full extracted text for each selected document, preserve source-bound "
+            "evidence, and report unavailable sources instead of silently omitting them."
+        ),
+        "surfaces": ["chat_proxy"],
+        "metadataStatus": "chat_proxy_only",
+    },
+]
+
 _CHAT_RUN_DENIED_TOOLS = frozenset({"remove_user_from_case"})
 _CHAT_RUN_EXPLICIT_CONFIRMATION_TOOLS = frozenset(
     {
@@ -628,7 +818,7 @@ _CHAT_RUN_EXPLICIT_CONFIRMATION_TOOLS = frozenset(
 
 
 _IN_HOUSE_FUNCTION_NAMES = frozenset(tool["name"] for tool in _IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE)
-_SERIESAI_FUNCTION_NAMES = frozenset({"get_seriesai_company_details"})
+_SERIESAI_FUNCTION_NAMES = frozenset({"get_seriesai_company_details", "get_seriesai_company_cap_table"})
 _FUNCTIONS: dict[str, dict[str, Any]] = {}
 for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
     _name = str(_tool["name"])
@@ -640,9 +830,7 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
         **_tool,
         "categoryId": categorize_function_name(_name),
         "appIds": (
-            ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES
-            else ("3", "4") if _name in _SERIESAI_FUNCTION_NAMES
-            else ()
+            ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES else ("3", "4") if _name in _SERIESAI_FUNCTION_NAMES else ()
         ),
     }
 
@@ -665,7 +853,7 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "name": "retrieve_cap_table",
             "operationId": "retrieve-cap-table",
             "surfaces": ["intent_handler", "chat_proxy"],
-            "verification": "operation_id_match_only",
+            "verification": "verified_shared_operation_id",
         },
     ),
     "assign_action_item": (
@@ -835,7 +1023,7 @@ def chat_run_tool_records(app_id: Any = None) -> list[dict[str, Any]]:
     ]
 
 
-def universal_function_records(
+def universal_function_records(  # noqa: C901 - merge precedence is explicit across supported sources
     mcp_records: list[dict[str, Any]] | None = None,
     *,
     include_chat_run_records: bool = True,
@@ -859,6 +1047,14 @@ def universal_function_records(
                 record["callerAliases"] = deepcopy(list(compatibility))
             merged[name] = record
 
+    for source_record in _CHAT_PROXY_ONLY_FUNCTION_RECORDS:
+        record = deepcopy(source_record)
+        name = str(record.get("name") or record.get("functionId") or "").strip()
+        if name and name not in merged:
+            record["categoryId"] = categorize_function_name(name)
+            record["mcpCallable"] = False
+            merged[name] = record
+
     for source_record in mcp_records or []:
         record = deepcopy(dict(source_record))
         name = str(record.get("name") or record.get("functionId") or "").strip()
@@ -879,6 +1075,7 @@ def universal_function_records(
                     "requiredInputs": list(required) if isinstance(required, list) else [],
                     "surfaces": ["mcp"],
                     "metadataStatus": "mcp_schema_only",
+                    "mcpCallable": True,
                 }
             )
             merged[name] = record
@@ -889,8 +1086,9 @@ def universal_function_records(
             existing["callerAliases"] = deepcopy(list(compatibility))
         if not existing.get("description"):
             existing["description"] = record.get("description")
-        existing["surfaces"] = ["chat_run", "mcp"]
+        existing["surfaces"] = list(dict.fromkeys([*(existing.get("surfaces") or []), "mcp"]))
         existing["metadataStatus"] = "shared_metadata_and_mcp_schema"
+        existing["mcpCallable"] = True
 
     return [merged[name] for name in sorted(merged)]
 
@@ -945,9 +1143,10 @@ def hierarchical_function_index(
     *,
     app_id: Any = None,
     category_id: str | None = None,
+    subcategory_id: str | None = None,
 ) -> dict[str, Any]:
-    """Return category summaries, or only the full records in one category."""
+    """Return the index, a category's records, or one category subgroup."""
     visible_records = records if records is not None else chat_run_tool_records(app_id)
-    result = browse_function_map(visible_records, category_id)
+    result = browse_function_map(visible_records, category_id, subcategory_id)
     result["scope"] = str(app_id or "").strip() or "shared"
     return result

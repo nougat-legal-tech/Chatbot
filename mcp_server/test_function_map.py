@@ -34,6 +34,7 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     company_details = next(
         record for record in company_operations["functions"] if record["name"] == "get_seriesai_company_details"
     )
+    assert "company's profile" in company_details["mcpDescription"]
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
     assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
 
@@ -42,6 +43,21 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert selected_subgroup["subcategory"]["id"] == subgroup["id"]
     assert len(selected_subgroup["functions"]) == subgroup["count"]
     assert all(record["subcategoryId"] == subgroup["id"] for record in selected_subgroup["functions"])
+
+
+def test_in_house_category_map_preserves_required_idempotency_inputs():
+    selected = asyncio.run(server.browse_function_map(object(), "contracts_workflows"))
+    records = {record["name"]: record for record in selected["functions"]}
+
+    assert records["create_in_house_request"]["requiredInputs"] == [
+        "subject", "description", "idempotencyKey"
+    ]
+    assert records["create_in_house_request_comment"]["requiredInputs"] == [
+        "request_id", "body", "idempotencyKey"
+    ]
+    assert records["transition_in_house_request"]["requiredInputs"] == [
+        "request_id", "status", "idempotencyKey"
+    ]
 
 
 def test_action_item_filters_match_django_api_query_contract(monkeypatch):
