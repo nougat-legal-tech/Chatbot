@@ -296,6 +296,7 @@ _CHAT_RUN_TOOL_GUIDANCE = [
         "operationIds": ["whatsapp-messages"],
         "requiredInputs": ["caseId", "connectionId", "to", "message"],
         "mutatesState": True,
+        "sendsExternalMessage": True,
         "invocationGuidance": (
             "Send only from the connected firm's WhatsApp Business number after case "
             "authorization; use an approved template when Meta requires one."
@@ -813,6 +814,7 @@ _CHAT_RUN_EXPLICIT_CONFIRMATION_TOOLS = frozenset(
         "refresh_clio_import",
         "update_clio_matter",
         "update_clio_contact",
+        "send_whatsapp_message",
     }
 )
 
