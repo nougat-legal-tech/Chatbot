@@ -420,8 +420,10 @@ async def edit_case_action_items(
     description=(
         "List deadlines and important dates for an authorized case. Optionally filter by date range, event type, "
         "source kind, practice area, or lifecycle stage; optionally exclude provider-imported calendar rows or booking projections; "
+        "optionally include legacy embedded company deadlines for SeriesAI cases or filter to upcoming deadlines; "
+        "for compliance deadline requests, set exclude_external_calendar=true; "
         "optionally require at least one displayable date or event label, select ascending or descending date order, "
-        "and limit the returned items. For a historical timeline, use descending order and exclude external calendar "
+        "filter to dates that are still open, and limit the returned items. For a historical timeline, use descending order and exclude external calendar "
         "rows, booking projections, and non-displayable rows."
     )
 )
@@ -438,6 +440,9 @@ async def list_case_important_dates(
     exclude_external_calendar: bool | None = None,
     exclude_booking_projections: bool | None = None,
     require_displayable: bool | None = None,
+    open_only: bool | None = None,
+    upcoming_only: bool | None = None,
+    include_legacy_company_deadlines: bool | None = None,
     result_limit: int | None = None,
     sort_order: str | None = None,
 ) -> dict:
@@ -453,6 +458,9 @@ async def list_case_important_dates(
         ("excludeExternalCalendar", exclude_external_calendar),
         ("excludeBookingProjections", exclude_booking_projections),
         ("requireDisplayable", require_displayable),
+        ("openOnly", open_only),
+        ("upcomingOnly", upcoming_only),
+        ("includeLegacyCompanyDeadlines", include_legacy_company_deadlines),
         ("resultLimit", result_limit),
         ("sortOrder", sort_order),
     ):

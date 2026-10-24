@@ -123,6 +123,7 @@ def test_important_date_filters_match_django_api_query_contract(monkeypatch):
             exclude_external_calendar=True,
             exclude_booking_projections=True,
             require_displayable=True,
+            open_only=True,
             result_limit=50,
         )
     )
@@ -141,6 +142,7 @@ def test_important_date_filters_match_django_api_query_contract(monkeypatch):
             "excludeExternalCalendar": True,
             "excludeBookingProjections": True,
             "requireDisplayable": True,
+            "openOnly": True,
             "resultLimit": 50,
         },
     }
