@@ -838,11 +838,7 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
             tuple(_tool.get("appIds", ()))
             if "appIds" in _tool
             else (
-                ("5",)
-                if _name in _IN_HOUSE_FUNCTION_NAMES
-                else ("3", "4")
-                if _name in _SERIESAI_FUNCTION_NAMES
-                else ()
+                ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES else ("3", "4") if _name in _SERIESAI_FUNCTION_NAMES else ()
             )
         ),
     }
