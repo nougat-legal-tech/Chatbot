@@ -1297,8 +1297,8 @@ async def get_seriesai_company_details(
 @mcp.tool(description="Read the company cap table with legacy-compatible ownership entries and summaries.")
 async def get_seriesai_company_cap_table(
     ctx: Context,
-    organization_id: str,
-    app_id: str,
+    caseId: str,  # noqa: N803 - MCP schema exposes camelCase fields.
+    appId: str,  # noqa: N803 - MCP schema exposes camelCase fields.
 ) -> dict:
     """Read the authenticated company's committed holders and embedded fallback entries."""
     return await _post(
@@ -1306,8 +1306,8 @@ async def get_seriesai_company_cap_table(
         "/api/tools/execute/",
         {
             "toolName": "getCompanyCapTable",
-            "organizationId": organization_id,
-            "appId": app_id,
+            "organizationId": caseId,
+            "appId": appId,
         },
     )
 

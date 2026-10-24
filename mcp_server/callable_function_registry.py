@@ -385,6 +385,7 @@ _CHAT_RUN_TOOL_GUIDANCE = [
     },
     {
         "name": "generate_pitch_deck",
+        "appIds": ("3", "4", "5"),
         "operationIds": ["generate-pitch-deck"],
         "requiredInputs": ["caseId", "purpose", "confirmation", "idempotencyKey"],
         "mutatesState": True,
@@ -406,6 +407,7 @@ _CHAT_RUN_TOOL_GUIDANCE = [
     },
     {
         "name": "retrieve_pitch_deck_job_status",
+        "appIds": ("3", "4", "5"),
         "operationIds": ["get-pitch-deck-job-status"],
         "requiredInputs": ["caseId", "jobId"],
         "mutatesState": False,
@@ -418,6 +420,7 @@ _CHAT_RUN_TOOL_GUIDANCE = [
     },
     {
         "name": "retrieve_pitch_deck_job_result",
+        "appIds": ("3", "4", "5"),
         "operationIds": ["get-pitch-deck-job-result"],
         "requiredInputs": ["caseId", "jobId"],
         "mutatesState": False,
@@ -832,7 +835,15 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
         **_tool,
         "categoryId": categorize_function_name(_name),
         "appIds": (
-            ("5",) if _name in _IN_HOUSE_FUNCTION_NAMES else ("3", "4") if _name in _SERIESAI_FUNCTION_NAMES else ()
+            tuple(_tool.get("appIds", ()))
+            if "appIds" in _tool
+            else (
+                ("5",)
+                if _name in _IN_HOUSE_FUNCTION_NAMES
+                else ("3", "4")
+                if _name in _SERIESAI_FUNCTION_NAMES
+                else ()
+            )
         ),
     }
 
@@ -1025,7 +1036,7 @@ def chat_run_tool_records(app_id: Any = None) -> list[dict[str, Any]]:
     ]
 
 
-def universal_function_records(  # noqa: C901 - merge precedence is explicit across supported sources
+def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is explicit across supported sources
     mcp_records: list[dict[str, Any]] | None = None,
     *,
     include_chat_run_records: bool = True,
@@ -1049,13 +1060,14 @@ def universal_function_records(  # noqa: C901 - merge precedence is explicit acr
                 record["callerAliases"] = deepcopy(list(compatibility))
             merged[name] = record
 
-    for source_record in _CHAT_PROXY_ONLY_FUNCTION_RECORDS:
-        record = deepcopy(source_record)
-        name = str(record.get("name") or record.get("functionId") or "").strip()
-        if name and name not in merged:
-            record["categoryId"] = categorize_function_name(name)
-            record["mcpCallable"] = False
-            merged[name] = record
+    if include_chat_run_records:
+        for source_record in _CHAT_PROXY_ONLY_FUNCTION_RECORDS:
+            record = deepcopy(source_record)
+            name = str(record.get("name") or record.get("functionId") or "").strip()
+            if name and name not in merged:
+                record["categoryId"] = categorize_function_name(name)
+                record["mcpCallable"] = False
+                merged[name] = record
 
     for source_record in mcp_records or []:
         record = deepcopy(dict(source_record))
