@@ -38,6 +38,35 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
     assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
 
+    legacy_inventory_by_category = {
+        "company_operations": {
+            "add_cap_table_entry",
+            "update_cap_table_entry",
+            "advance_lifecycle_stage",
+            "diligence_room_prepare",
+            "diligence_room_query",
+            "generate_founder_update",
+            "generate_board_consent",
+            "generate_safe",
+            "generate_financing_doc",
+        },
+        "documents_research": {
+            "classify_lifecycle_upload",
+            "request_missing_lifecycle_documents",
+        },
+        "scheduling": {"edit_company_deadlines", "deadline_acknowledgment"},
+    }
+    for category_id, expected_names in legacy_inventory_by_category.items():
+        inventory_category = asyncio.run(server.browse_function_map(object(), category_id))
+        inventory_records = {record["name"]: record for record in inventory_category["functions"]}
+        assert expected_names <= inventory_records.keys()
+        for name in expected_names:
+            record = inventory_records[name]
+            assert record["mcpCallable"] is False
+            assert record["surfaces"] == ["intent_handler"]
+            assert "inputSchema" not in record
+            assert "operationIds" not in record
+
     subgroup = category["subcategories"][0]
     selected_subgroup = asyncio.run(server.browse_function_map(object(), category["id"], subcategory_id=subgroup["id"]))
     assert selected_subgroup["subcategory"]["id"] == subgroup["id"]

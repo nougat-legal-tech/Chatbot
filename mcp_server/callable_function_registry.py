@@ -1009,66 +1009,79 @@ _INTENT_HANDLER_ONLY_FUNCTION_RECORDS = (
     {
         "functionId": "add_cap_table_entry",
         "name": "add_cap_table_entry",
+        "categoryId": "company_operations",
         "description": "Append a legacy holder or security entry to a company's embedded cap-table records.",
     },
     {
         "functionId": "update_cap_table_entry",
         "name": "update_cap_table_entry",
+        "categoryId": "company_operations",
         "description": "Update a legacy company cap-table entry by its existing entry identifier.",
     },
     {
         "functionId": "edit_company_deadlines",
         "name": "edit_company_deadlines",
+        "categoryId": "scheduling",
         "description": "Add, update, or delete a legacy company deadline and its associated timeline event.",
     },
     {
         "functionId": "deadline_acknowledgment",
         "name": "deadline_acknowledgment",
+        "categoryId": "scheduling",
         "description": "Acknowledge and complete a named company deadline.",
     },
     {
         "functionId": "advance_lifecycle_stage",
         "name": "advance_lifecycle_stage",
+        "categoryId": "company_operations",
         "description": "Advance a company's lifecycle stage and record the corresponding event.",
     },
     {
         "functionId": "classify_lifecycle_upload",
         "name": "classify_lifecycle_upload",
+        "categoryId": "documents_research",
         "description": "Classify an uploaded company document and record its lifecycle evidence.",
     },
     {
         "functionId": "diligence_room_prepare",
         "name": "diligence_room_prepare",
+        "categoryId": "company_operations",
         "description": "Prepare a company or deal diligence room and identify required documents or missing evidence.",
     },
     {
         "functionId": "request_missing_lifecycle_documents",
         "name": "request_missing_lifecycle_documents",
+        "categoryId": "documents_research",
         "description": "Identify missing lifecycle documents and create follow-up requests for them.",
     },
     {
         "functionId": "diligence_room_query",
         "name": "diligence_room_query",
+        "categoryId": "company_operations",
         "description": "Search the authorized company or deal diligence records.",
     },
     {
         "functionId": "generate_founder_update",
         "name": "generate_founder_update",
+        "categoryId": "company_operations",
         "description": "Generate a founder update grounded in company events and diligence status.",
     },
     {
         "functionId": "generate_board_consent",
         "name": "generate_board_consent",
+        "categoryId": "company_operations",
         "description": "Generate a board-consent document from the appropriate approved template.",
     },
     {
         "functionId": "generate_safe",
         "name": "generate_safe",
+        "categoryId": "company_operations",
         "description": "Generate a SAFE document using the authorized company profile and deal terms.",
     },
     {
         "functionId": "generate_financing_doc",
         "name": "generate_financing_doc",
+        "categoryId": "company_operations",
         "description": "Generate a financing document from a supported template and supplied deal terms.",
     },
 )
@@ -1149,7 +1162,7 @@ def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is exp
             if name and name not in merged:
                 record.update(
                     {
-                        "categoryId": categorize_function_name(name),
+                        "categoryId": record["categoryId"],
                         "appIds": ["3", "4"],
                         "surfaces": ["intent_handler"],
                         "metadataStatus": "legacy_caller_only",
