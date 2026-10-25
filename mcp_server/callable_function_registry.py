@@ -1002,6 +1002,77 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
     ),
 }
 
+# IntentHandler operations with no proven canonical MCP implementation remain
+# visible in the universal navigator as inventory records, never tool schemas.
+# Keep inputs and operation IDs absent until their request contracts are mapped.
+_INTENT_HANDLER_ONLY_FUNCTION_RECORDS = (
+    {
+        "functionId": "add_cap_table_entry",
+        "name": "add_cap_table_entry",
+        "description": "Append a legacy holder or security entry to a company's embedded cap-table records.",
+    },
+    {
+        "functionId": "update_cap_table_entry",
+        "name": "update_cap_table_entry",
+        "description": "Update a legacy company cap-table entry by its existing entry identifier.",
+    },
+    {
+        "functionId": "edit_company_deadlines",
+        "name": "edit_company_deadlines",
+        "description": "Add, update, or delete a legacy company deadline and its associated timeline event.",
+    },
+    {
+        "functionId": "deadline_acknowledgment",
+        "name": "deadline_acknowledgment",
+        "description": "Acknowledge and complete a named company deadline.",
+    },
+    {
+        "functionId": "advance_lifecycle_stage",
+        "name": "advance_lifecycle_stage",
+        "description": "Advance a company's lifecycle stage and record the corresponding event.",
+    },
+    {
+        "functionId": "classify_lifecycle_upload",
+        "name": "classify_lifecycle_upload",
+        "description": "Classify an uploaded company document and record its lifecycle evidence.",
+    },
+    {
+        "functionId": "diligence_room_prepare",
+        "name": "diligence_room_prepare",
+        "description": "Prepare a company or deal diligence room and identify required documents or missing evidence.",
+    },
+    {
+        "functionId": "request_missing_lifecycle_documents",
+        "name": "request_missing_lifecycle_documents",
+        "description": "Identify missing lifecycle documents and create follow-up requests for them.",
+    },
+    {
+        "functionId": "diligence_room_query",
+        "name": "diligence_room_query",
+        "description": "Search the authorized company or deal diligence records.",
+    },
+    {
+        "functionId": "generate_founder_update",
+        "name": "generate_founder_update",
+        "description": "Generate a founder update grounded in company events and diligence status.",
+    },
+    {
+        "functionId": "generate_board_consent",
+        "name": "generate_board_consent",
+        "description": "Generate a board-consent document from the appropriate approved template.",
+    },
+    {
+        "functionId": "generate_safe",
+        "name": "generate_safe",
+        "description": "Generate a SAFE document using the authorized company profile and deal terms.",
+    },
+    {
+        "functionId": "generate_financing_doc",
+        "name": "generate_financing_doc",
+        "description": "Generate a financing document from a supported template and supplied deal terms.",
+    },
+)
+
 _ALIASES: dict[str, list[str]] = {}
 for _function_id, _record in FUNCTION_REGISTRY.items():
     for _alias in dict.fromkeys((_function_id, *_record.get("operationIds", ()))):
@@ -1070,6 +1141,25 @@ def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is exp
             if name and name not in merged:
                 record["categoryId"] = categorize_function_name(name)
                 record["mcpCallable"] = False
+                merged[name] = record
+
+        for source_record in _INTENT_HANDLER_ONLY_FUNCTION_RECORDS:
+            record = deepcopy(dict(source_record))
+            name = str(record.get("name") or record.get("functionId") or "").strip()
+            if name and name not in merged:
+                record.update(
+                    {
+                        "categoryId": categorize_function_name(name),
+                        "appIds": ["3", "4"],
+                        "surfaces": ["intent_handler"],
+                        "metadataStatus": "legacy_caller_only",
+                        "mcpCallable": False,
+                        "invocationGuidance": (
+                            "Migration inventory record only. No MCP schema or canonical executor is registered; "
+                            "this record cannot be invoked through the universal MCP endpoint."
+                        ),
+                    }
+                )
                 merged[name] = record
 
     for source_record in mcp_records or []:
