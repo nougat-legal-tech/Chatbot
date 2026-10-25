@@ -855,6 +855,11 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "operationId": "retrieve-company-details",
             "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "verified_shared_operation_id",
+            # Older MCP images publish organization_id for this company-scoped
+            # lookup. That argument is semantically the selected case/company
+            # scope and must be filled from trusted case context.
+            "trustedScopeBindings": {"organization_id": "caseId"},
+            "requiresCaseId": True,
         },
     ),
     "get_seriesai_company_cap_table": (
@@ -863,6 +868,8 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "operationId": "retrieve-cap-table",
             "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "verified_shared_operation_id",
+            "trustedScopeBindings": {"organization_id": "caseId"},
+            "requiresCaseId": True,
         },
     ),
     "assign_action_item": (
