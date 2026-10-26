@@ -79,7 +79,7 @@ _CATEGORY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "company_operations",
         re.compile(
-            r"cap_table|stock_plan|issuance|equity|financing|company|series_ai|seriesai|revenue|sales|campaign|marketing|analytics|traction|safe|pitch_deck|onboarding",
+            r"cap_table|stock_plan|issuance|equity|financing|company|series_ai|seriesai|revenue|sales|campaign|marketing|analytics|traction|safe|pitch_deck|onboarding|lifecycle_stage",
             re.I,
         ),
     ),

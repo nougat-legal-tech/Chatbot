@@ -74,6 +74,12 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert all(record["subcategoryId"] == subgroup["id"] for record in selected_subgroup["functions"])
 
 
+def test_lifecycle_stage_capability_uses_company_operations_category():
+    result = server._browse_function_map([{"name": "advance_lifecycle_stage"}])
+
+    assert [category["id"] for category in result["categories"]] == ["company_operations"]
+
+
 def test_in_house_category_map_preserves_required_idempotency_inputs():
     selected = asyncio.run(server.browse_function_map(object(), "contracts_workflows"))
     records = {record["name"]: record for record in selected["functions"]}
