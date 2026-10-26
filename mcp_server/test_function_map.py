@@ -49,12 +49,55 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
             "generate_board_consent",
             "generate_safe",
             "generate_financing_doc",
+            "cap_table_issuance_intent",
+            "ownership_query",
+            "round_status_query",
+            "retrieve_company_marketing_automations",
+            "retrieve_company_marketing_performance",
+            "retrieve_company_revenue",
+            "retrieve_company_sales",
+            "retrieve_company_upcoming_campaigns",
+            "retrieve_company_web_analytics",
+            "seriesai_campaign_read_refusal",
+            "summarize_financing_document",
         },
         "documents_research": {
             "classify_lifecycle_upload",
             "request_missing_lifecycle_documents",
+            "document_amendment_request",
+            "document_generation_request",
+            "lawsuit_generation",
+            "strategic_digest",
         },
         "scheduling": {"edit_company_deadlines", "deadline_acknowledgment"},
+        "communications": {
+            "archive_case_email_draft",
+            "delete_case_email_message",
+            "delete_ingested_email",
+            "draft_followups",
+            "general_chatbot",
+            "help",
+            "retrieve_account_email_drafts",
+            "retrieve_case_email_drafts",
+            "retrieve_case_email_timeline",
+            "retrieve_inbox_review_items",
+            "update_case_email_draft",
+            "update_case_email_message",
+        },
+        "case_management": {
+            "delete_case_individual",
+            "named_case_scope",
+            "read_case_individual_dossier",
+            "retrieve_case_individuals",
+            "update_case_individual",
+        },
+        "signatures_approvals": {
+            "request_signature",
+            "retrieve_signature_status",
+            "safe_review_approval",
+            "signature_approval",
+        },
+        "contracts_workflows": {"start_workflow_gap_plan"},
     }
     for category_id, expected_names in legacy_inventory_by_category.items():
         inventory_category = asyncio.run(server.browse_function_map(object(), category_id))
@@ -63,7 +106,7 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
         for name in expected_names:
             record = inventory_records[name]
             assert record["mcpCallable"] is False
-            assert record["surfaces"] == ["intent_handler"]
+            assert "intent_handler" in record["surfaces"]
             assert "inputSchema" not in record
             assert "operationIds" not in record
 
