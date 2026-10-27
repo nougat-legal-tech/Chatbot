@@ -135,6 +135,44 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert all(record["subcategoryId"] == subgroup["id"] for record in selected_subgroup["functions"])
 
 
+def test_in_house_request_list_is_callable_and_remains_app_scoped_when_allowlisted(monkeypatch):
+    selected = asyncio.run(
+        server.browse_function_map(object(), "contracts_workflows", ["retrieve_in_house_requests"])
+    )
+    record = selected["functions"][0]
+    assert record["name"] == "retrieve_in_house_requests"
+    assert record["appIds"] == ("5",)
+    assert {"chat_run", "mcp"}.issubset(record["surfaces"])
+    assert record["mcpCallable"] is True
+
+    obligations = asyncio.run(
+        server.browse_function_map(object(), "contracts_workflows", ["retrieve_in_house_obligations"])
+    )["functions"][0]
+    assert obligations["name"] == "retrieve_in_house_obligations"
+    assert obligations["appIds"] == ("5",)
+    assert obligations["inputSchema"]["properties"]["case_id"]["type"] == "string"
+
+    for tool_name in ("retrieve_in_house_counterparties", "search_in_house_knowledge"):
+        scoped_tool = asyncio.run(
+            server.browse_function_map(object(), "contracts_workflows", [tool_name])
+        )["functions"][0]
+        assert scoped_tool["name"] == tool_name
+        assert scoped_tool["appIds"] == ("5",)
+        assert scoped_tool["mcpCallable"] is True
+    assert obligations["appIds"] == ("5",)
+
+    captured = {}
+
+    async def fake_get(ctx, path, params=None):
+        captured.update(ctx=ctx, path=path, params=params)
+        return [{"id": "request-1"}]
+
+    monkeypatch.setattr(server, "_get", fake_get)
+    ctx = object()
+    assert asyncio.run(server.retrieve_in_house_requests(ctx)) == [{"id": "request-1"}]
+    assert captured == {"ctx": ctx, "path": "/api/in-house/requests/", "params": None}
+
+
 def test_lifecycle_stage_capability_uses_company_operations_category():
     result = server._browse_function_map([{"name": "advance_lifecycle_stage"}])
 

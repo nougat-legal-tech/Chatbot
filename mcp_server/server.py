@@ -261,6 +261,46 @@ async def list_my_cases(ctx: Context) -> dict:
 
 @mcp.tool(
     description=(
+        "List In-House legal requests for the authenticated organization. Django applies requester-versus-legal-staff "
+        "visibility from the caller's authenticated identity."
+    )
+)
+async def retrieve_in_house_requests(ctx: Context) -> dict:
+    return await _get(ctx, "/api/in-house/requests/")
+
+
+@mcp.tool(
+    description=(
+        "List obligations for the authenticated In-House organization. Django requires legal-staff access and checks "
+        "matter access when case_id is supplied."
+    )
+)
+async def retrieve_in_house_obligations(ctx: Context, case_id: str | None = None) -> dict:
+    return await _get(ctx, "/api/in-house/obligations/", {"caseId": case_id})
+
+
+@mcp.tool(
+    description=(
+        "List In-House counterparties with their contracts, open obligations, and requests. Django requires "
+        "authenticated legal-staff access and organization scope."
+    )
+)
+async def retrieve_in_house_counterparties(ctx: Context) -> dict:
+    return await _get(ctx, "/api/in-house/counterparties/")
+
+
+@mcp.tool(
+    description=(
+        "Search the authenticated In-House organization's citable legal records. Django requires legal-staff access; "
+        "cite facts from the returned records."
+    )
+)
+async def search_in_house_knowledge(ctx: Context, q: str) -> dict:
+    return await _get(ctx, "/api/in-house/knowledge/", {"q": q})
+
+
+@mcp.tool(
+    description=(
         "Fetch core metadata for a case or CourtListener docket. Use case_id for a matter already in the workspace, "
         "or docket_id for a docket returned by search_case."
     )

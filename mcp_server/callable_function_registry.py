@@ -965,17 +965,21 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
                         "caseId": {"type": "string"},
                         "actionItemId": {"type": "string"},
                         "openOnly": {"type": "boolean", "default": True},
+                        "resultLimit": {"type": "integer", "minimum": 1, "maximum": 100},
+                        "includeLifecycleSuggestions": {"type": "boolean", "default": True},
                     },
                     "required": ["appId", "userId", "caseId"],
                 }
             },
-            "defaultArguments": {"open_only": True},
+            "defaultArguments": {"open_only": True, "include_lifecycle_suggestions": True},
             "argumentBindings": {
                 "actionItemId": "item_id",
                 "openOnly": "open_only",
+                "resultLimit": "result_limit",
+                "includeLifecycleSuggestions": "include_lifecycle_suggestions",
             },
             "notes": (
-                "actionItemId is an optional exact-item filter; openOnly defaults to true in the legacy "
+                "actionItemId is an optional exact-item filter; resultLimit is capped at 100; openOnly defaults to true in the legacy "
                 "caller. Caller userId is authenticated context and is not forwarded as a Django query parameter."
             ),
         },
@@ -1514,6 +1518,17 @@ def universal_function_records(  # noqa: C901, PLR0912, PLR0915 - explicit merge
             record["callerAliases"] = deepcopy(list(compatibility))
         existing = merged.get(name)
         if existing is None:
+            # An allowlisted map query omits unrelated chat-run records, but a
+            # matching canonical record still owns the function's app scope,
+            # operation IDs, and caller metadata.
+            source_record = FUNCTION_REGISTRY.get(name)
+            if source_record is not None:
+                existing = deepcopy(source_record)
+                existing["surfaces"] = list(
+                    dict.fromkeys([*(existing.get("surfaces") or []), "chat_run"])
+                )
+                merged[name] = existing
+        if existing is None:
             schema = record.get("inputSchema")
             required = schema.get("required", []) if isinstance(schema, dict) else []
             record.update(
@@ -1531,11 +1546,12 @@ def universal_function_records(  # noqa: C901, PLR0912, PLR0915 - explicit merge
                 record["inputSchemasBySurface"] = {"mcp": deepcopy(schema)}
             merged[name] = record
             continue
-        existing["inputSchema"] = record.get("inputSchema")
-        if isinstance(record.get("inputSchema"), dict):
+        schema = record.get("inputSchema")
+        if isinstance(schema, dict):
+            existing["inputSchema"] = deepcopy(schema)
             schemas_by_surface = existing.setdefault("inputSchemasBySurface", {})
             if isinstance(schemas_by_surface, dict):
-                schemas_by_surface["mcp"] = deepcopy(record["inputSchema"])
+                schemas_by_surface["mcp"] = deepcopy(schema)
         existing["mcpDescription"] = record.get("description")
         if compatibility:
             existing["callerAliases"] = deepcopy(list(compatibility))
