@@ -105,18 +105,22 @@ const schemaTypeHandlers: Record<string, (schema: OpenAPISchema) => z.ZodTypeAny
           shape[key] = shape[key].describe(value.description || '');
         } else {
           const optionalSchema = (zodSchema || z.unknown()).optional();
-          // LLMs commonly send an empty string for an optional parameter they
-          // did not fill in. OpenAPI's minLength constraints reject that value
-          // before the action can run, even though the field is optional.
-          // Normalize the empty value to omission so the request follows the
-          // same path as a genuinely absent optional string.
+          // LLMs commonly send an empty string for an optional, non-empty
+          // string parameter. Normalize it to omission so minLength does not
+          // reject a value that is functionally absent.
           const propertySchema = value as OpenAPIV3.SchemaObject;
           shape[key] =
-            propertySchema.type === 'string' || propertySchema.nullable
+            propertySchema.nullable ||
+            (propertySchema.type === 'string' &&
+              propertySchema.minLength !== undefined &&
+              propertySchema.minLength > 0)
               ? z.preprocess(
                   (input) =>
                     (propertySchema.nullable && input === null) ||
-                    (propertySchema.type === 'string' && input === '')
+                    (propertySchema.type === 'string' &&
+                      propertySchema.minLength !== undefined &&
+                      propertySchema.minLength > 0 &&
+                      input === '')
                       ? undefined
                       : input,
                   optionalSchema,
