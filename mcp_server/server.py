@@ -271,6 +271,46 @@ async def retrieve_in_house_requests(ctx: Context) -> dict:
 
 @mcp.tool(
     description=(
+        "List In-House matters for the authenticated organization. Django requires legal-staff access and scopes "
+        "the collection by organization and app."
+    )
+)
+async def retrieve_in_house_matter(ctx: Context) -> dict:
+    return await _get(ctx, "/api/in-house/matters/")
+
+
+@mcp.tool(
+    description=(
+        "List contracts for the authenticated In-House organization. Django requires legal-staff access, scopes "
+        "results to the organization, and checks matter access when case_id is supplied. Optional filters are "
+        "counterparty, contract_type, business_unit, status, and risk."
+    )
+)
+async def retrieve_in_house_contracts(
+    ctx: Context,
+    case_id: str | None = None,
+    counterparty: str | None = None,
+    contract_type: str | None = None,
+    business_unit: str | None = None,
+    status: str | None = None,
+    risk: str | None = None,
+) -> dict:
+    return await _get(
+        ctx,
+        "/api/in-house/contracts/",
+        {
+            "caseId": case_id,
+            "counterparty": counterparty,
+            "contract_type": contract_type,
+            "business_unit": business_unit,
+            "status": status,
+            "risk": risk,
+        },
+    )
+
+
+@mcp.tool(
+    description=(
         "List obligations for the authenticated In-House organization. Django requires legal-staff access and checks "
         "matter access when case_id is supplied."
     )

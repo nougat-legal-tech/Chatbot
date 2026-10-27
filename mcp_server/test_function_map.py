@@ -152,7 +152,12 @@ def test_in_house_request_list_is_callable_and_remains_app_scoped_when_allowlist
     assert obligations["appIds"] == ("5",)
     assert obligations["inputSchema"]["properties"]["case_id"]["type"] == "string"
 
-    for tool_name in ("retrieve_in_house_counterparties", "search_in_house_knowledge"):
+    for tool_name in (
+        "retrieve_in_house_matter",
+        "retrieve_in_house_contracts",
+        "retrieve_in_house_counterparties",
+        "search_in_house_knowledge",
+    ):
         scoped_tool = asyncio.run(
             server.browse_function_map(object(), "contracts_workflows", [tool_name])
         )["functions"][0]
