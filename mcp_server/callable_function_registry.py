@@ -156,6 +156,7 @@ _CHAT_RUN_TOOL_GUIDANCE = [
                 "required": ["siteId"],
             },
         },
+        "argumentBindingsBySurface": {"chat_proxy": {"siteId": "site_id"}},
         "invocationGuidance": "Use only a siteId returned by search_sharepoint_sites; never invent one.",
     },
     {
@@ -163,6 +164,18 @@ _CHAT_RUN_TOOL_GUIDANCE = [
         "operationIds": ["list-sharepoint-drive-children"],
         "requiredInputs": ["driveId"],
         "mutatesState": False,
+        "surfaces": ["chat_proxy"],
+        "inputSchemasBySurface": {
+            "chat_proxy": {
+                "type": "object",
+                "properties": {
+                    "driveId": {"type": "string", "description": "A driveId returned by list_sharepoint_site_drives."},
+                    "itemId": {"type": "string", "description": "A folder itemId returned by a prior list_sharepoint_drive_children call."},
+                },
+                "required": ["driveId"],
+            },
+        },
+        "argumentBindingsBySurface": {"chat_proxy": {"driveId": "drive_id", "itemId": "item_id"}},
         "invocationGuidance": (
             "Use only a driveId from list_sharepoint_site_drives and, to open a folder, only an itemId from a "
             "previous SharePoint result; never invent either."
@@ -1431,7 +1444,7 @@ def chat_run_tool_records(app_id: Any = None) -> list[dict[str, Any]]:
     ]
 
 
-def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is explicit across supported sources
+def universal_function_records(  # noqa: C901, PLR0912, PLR0915 - explicit merge precedence across supported sources
     mcp_records: list[dict[str, Any]] | None = None,
     *,
     include_chat_run_records: bool = True,
@@ -1450,10 +1463,14 @@ def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is exp
             if not name:
                 continue
             declared_surfaces = record.get("surfaces")
-            record["surfaces"] = list(dict.fromkeys([
-                *(declared_surfaces if isinstance(declared_surfaces, list) else []),
-                "chat_run",
-            ]))
+            record["surfaces"] = list(
+                dict.fromkeys(
+                    [
+                        *(declared_surfaces if isinstance(declared_surfaces, list) else []),
+                        "chat_run",
+                    ]
+                )
+            )
             compatibility = MCP_CALLER_COMPATIBILITY.get(name)
             if compatibility:
                 record["callerAliases"] = deepcopy(list(compatibility))

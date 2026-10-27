@@ -41,6 +41,21 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
     assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
 
+    integrations = asyncio.run(server.browse_function_map(object(), "integrations_admin"))
+    sharepoint_drives = next(
+        record for record in integrations["functions"] if record["name"] == "list_sharepoint_site_drives"
+    )
+    assert sharepoint_drives["inputSchemasBySurface"]["chat_proxy"]["required"] == ["siteId"]
+    assert sharepoint_drives["argumentBindingsBySurface"]["chat_proxy"] == {"siteId": "site_id"}
+    sharepoint_children = next(
+        record for record in integrations["functions"] if record["name"] == "list_sharepoint_drive_children"
+    )
+    assert sharepoint_children["inputSchemasBySurface"]["chat_proxy"]["required"] == ["driveId"]
+    assert sharepoint_children["argumentBindingsBySurface"]["chat_proxy"] == {
+        "driveId": "drive_id",
+        "itemId": "item_id",
+    }
+
     legacy_inventory_by_category = {
         "company_operations": {
             "add_cap_table_entry",
