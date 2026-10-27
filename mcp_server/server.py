@@ -302,12 +302,14 @@ async def list_action_items(
     parent_task_id: str | None = None,
     result_limit: int | None = None,
     include_lifecycle_suggestions: bool | None = None,
+    item_id: str | None = None,
 ) -> dict:
     return await _get(
         ctx,
         "/api/action-items/",
         {
             "caseId": case_id,
+            "itemId": item_id,
             "status": status,
             "assignedTo": assignee_id,
             "appId": app_id,

@@ -943,6 +943,28 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "operationId": "retrieve-company-action-items",
             "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "operation_id_match_only",
+            "inputSchemasBySurface": {
+                "intent_handler": {
+                    "type": "object",
+                    "properties": {
+                        "appId": {"type": "string"},
+                        "userId": {"type": "string"},
+                        "caseId": {"type": "string"},
+                        "actionItemId": {"type": "string"},
+                        "openOnly": {"type": "boolean", "default": True},
+                    },
+                    "required": ["appId", "userId", "caseId"],
+                }
+            },
+            "defaultArguments": {"open_only": True},
+            "argumentBindings": {
+                "actionItemId": "item_id",
+                "openOnly": "open_only",
+            },
+            "notes": (
+                "actionItemId is an optional exact-item filter; openOnly defaults to true in the legacy "
+                "caller. Caller userId is authenticated context and is not forwarded as a Django query parameter."
+            ),
         },
     ),
     "list_case_important_dates": (
