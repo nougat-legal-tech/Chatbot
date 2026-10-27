@@ -122,7 +122,7 @@ def test_search_scheduling_slots_accepts_legacy_action_arguments(monkeypatch):
     }
 
 
-def test_action_specs_accept_canonical_and_legacy_time_bounds():
+def test_action_specs_expose_only_canonical_required_time_bounds():
     config_dir = MODULE_PATH.parents[1] / "config"
     for filename in (
         "juristai-agent-action-spec.json",
@@ -132,12 +132,10 @@ def test_action_specs_accept_canonical_and_legacy_time_bounds():
         operation = spec["paths"]["/api/core/scheduling/slots"]["get"]
         parameters = {item["name"]: item for item in operation["parameters"]}
         assert "never use it to set Outlook email follow-up due dates" in operation["description"]
-        assert set(parameters) == {
-            "startAt", "endAt", "eventTypeId", "event_type_id", "slug",
-            "start_at", "startTime", "start_time", "end_at", "endTime", "end_time",
-            "timeZone", "time_zone", "timezone",
+        assert set(parameters) == {"startAt", "endAt", "eventTypeId", "slug", "timeZone"}
+        assert {name for name, parameter in parameters.items() if parameter.get("required")} == {
+            "startAt", "endAt"
         }
-        assert not any(parameter.get("required") for parameter in parameters.values())
         assert all(parameters[name]["schema"].get("nullable") for name in (
-            "eventTypeId", "event_type_id", "slug", "timeZone", "time_zone", "timezone"
+            "eventTypeId", "slug", "timeZone"
         ))

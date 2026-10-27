@@ -236,12 +236,11 @@ const startServer = async () => {
   /* Re-assert the JuristAI agent's django-tools Action binding on every boot
    * (idempotent — no-ops when already bound). Keeps the binding enforced by
    * code so image rollouts and agent edits can't silently strip it
-   * (#CHAT-AGENT-NO-TOOLS-BOUND). Opt out with JURISTAI_ENSURE_AGENT_ACTION=false.
+   * (#CHAT-AGENT-NO-TOOLS-BOUND). This binding must run even when a task
+   * definition carries the legacy JURISTAI_ENSURE_AGENT_ACTION=false override:
+   * skipping it leaves the deployed agent on a stale OpenAPI argument schema.
    * Non-fatal: fresh installs without the agent just log and continue. */
-  if (
-    process.env.JURISTAI_ENSURE_AGENT_ACTION !== 'false' &&
-    process.env.JEST_WORKER_ID === undefined
-  ) {
+  if (require('../../config/agent-action-binding-policy').shouldBindJuristaiAgentAction()) {
     try {
       const { ensureJuristaiAgentAction } = require('../../config/ensure-juristai-agent-action');
       await runAsSystem(() =>

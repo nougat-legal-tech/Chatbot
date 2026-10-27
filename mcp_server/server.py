@@ -1832,11 +1832,13 @@ async def associate_whatsapp_message(
     return await _post(ctx, f"/api/integrations/whatsapp/messages/{message_id}/associate", payload)
 
 
-# DocuSign is case-scoped and shared by all JuristAI app surfaces.
-@mcp.tool(description="List DocuSign envelopes and current statuses available to the current matter.")
+# DocuSign uses the authenticated account connection, optionally scoped to an authorized matter.
+@mcp.tool(
+    description="List DocuSign envelopes and current statuses for the authenticated account, optionally scoped to a matter."
+)
 async def list_docusign_envelopes(
     ctx: Context,
-    case_id: str,
+    case_id: str | None = None,
     app_id: str | None = None,
     from_date: str | None = None,
     status: str = "any",

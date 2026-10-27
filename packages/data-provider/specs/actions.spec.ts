@@ -1299,7 +1299,7 @@ describe('createURL', () => {
         const slotSignature = functionSignatures.find(
           (signature) => signature.name === 'search-scheduling-slots',
         );
-        expect(slotSignature?.parameters.required).toEqual([]);
+        expect(slotSignature?.parameters.required).toEqual(['endAt', 'startAt']);
         expect(slotSignature?.description).toContain(
           'Search meeting availability for an event type.',
         );
@@ -1328,14 +1328,7 @@ describe('createURL', () => {
           event_type_id: 'event-type-1',
           time_zone: 'America/New_York',
         });
-        expect(legacySlotInput?.success).toBe(true);
-        const snakeCaseInput = slotSchema?.safeParse({
-          start_at: '2026-10-21T09:00:00-04:00',
-          end_at: '2026-10-21T17:00:00-04:00',
-          slug: 'intro-call',
-          timezone: 'America/New_York',
-        });
-        expect(snakeCaseInput?.success).toBe(true);
+        expect(legacySlotInput?.success).toBe(false);
         expect(
           slotSchema?.safeParse({
             startAt: null,

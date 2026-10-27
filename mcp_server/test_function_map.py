@@ -17,8 +17,11 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert index["version"] == 1
     assert index["categories"]
     # The map merges every callable MCP tool with Django chat-run guidance records.
-    callable_tools = {tool.name for tool in server.mcp._tool_manager.list_tools()} - {"browse_function_map"}
+    registered_tools = server.mcp._tool_manager.list_tools()
+    callable_tools = {tool.name for tool in registered_tools} - {"browse_function_map"}
     assert sum(item["count"] for item in index["categories"]) >= len(callable_tools)
+    docusign_list = next(tool for tool in registered_tools if tool.name == "list_docusign_envelopes")
+    assert "case_id" not in docusign_list.parameters.get("required", [])
     category = next(item for item in index["categories"] if item["id"] == "case_management")
     assert category["count"] > 0
     assert category["subcategories"]

@@ -1,3 +1,4 @@
+# Vendored from django-hub/jurist_backend/core/services/callable_function_registry.py
 """Canonical callable-function metadata consumed by existing Django surfaces.
 
 MCP wrappers and external callers are being migrated to this registry in stages.
@@ -142,6 +143,19 @@ _CHAT_RUN_TOOL_GUIDANCE = [
         "operationIds": ["list-sharepoint-site-drives"],
         "requiredInputs": ["siteId"],
         "mutatesState": False,
+        "surfaces": ["chat_proxy"],
+        "inputSchemasBySurface": {
+            "chat_proxy": {
+                "type": "object",
+                "properties": {
+                    "siteId": {
+                        "type": "string",
+                        "description": "A siteId returned by search_sharepoint_sites.",
+                    },
+                },
+                "required": ["siteId"],
+            },
+        },
         "invocationGuidance": "Use only a siteId returned by search_sharepoint_sites; never invent one.",
     },
     {
@@ -1006,165 +1020,263 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
 # Keep inputs and operation IDs absent until their request contracts are mapped.
 _ADDITIONAL_INTENT_HANDLER_ONLY_FUNCTION_RECORDS = (
     (
-        "archive_case_email_draft", "communications",
-        "Archive one saved email draft on a named case.", (), ("intent_handler",),
+        "archive_case_email_draft",
+        "communications",
+        "Archive one saved email draft on a named case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "cap_table_issuance_intent", "company_operations",
+        "cap_table_issuance_intent",
+        "company_operations",
         "Record a proposed share issuance for a Vienna company; approval is required before committing it.",
-        ("3", "4"), ("intent_handler",),
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "delete_case_email_message", "communications",
-        "Remove one named email from a case record.", (), ("intent_handler",),
+        "delete_case_email_message",
+        "communications",
+        "Remove one named email from a case record.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "delete_case_individual", "case_management",
-        "Remove a person from a case's list of individuals.", (), ("intent_handler",),
+        "delete_case_individual",
+        "case_management",
+        "Remove a person from a case's list of individuals.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "delete_ingested_email", "communications",
-        "Delete an email ingested from the authenticated user's connected inbox.", (), ("intent_handler",),
+        "delete_ingested_email",
+        "communications",
+        "Delete an email ingested from the authenticated user's connected inbox.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "document_amendment_request", "documents_research",
+        "document_amendment_request",
+        "documents_research",
         "Amend an existing Vienna corporate document, such as adding a cofounder or authorizing shares.",
-        ("3", "4"), ("intent_handler",),
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "document_generation_request", "documents_research",
+        "document_generation_request",
+        "documents_research",
         "Review an existing Vienna cap-table document workflow; starting financing documents uses a dedicated action.",
-        ("3", "4"), ("intent_handler",),
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "draft_followups", "communications",
+        "draft_followups",
+        "communications",
         "Draft unsent email follow-ups from sent-mail history without sending messages or booking meetings.",
-        (), ("intent_handler",),
+        (),
+        ("intent_handler",),
     ),
     (
-        "general_chatbot", "communications",
+        "general_chatbot",
+        "communications",
         "Answer an open-ended legal or product question when no specific operation applies.",
-        (), ("intent_handler", "chat_proxy"),
+        (),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "help", "communications",
-        "Explain what Vienna can do or how to use it.", (), ("intent_handler",),
+        "help",
+        "communications",
+        "Explain what Vienna can do or how to use it.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "lawsuit_generation", "documents_research",
+        "lawsuit_generation",
+        "documents_research",
         "Draft the initial complaint that starts a lawsuit; this is not motion drafting.",
-        ("2",), ("intent_handler",),
+        ("2",),
+        ("intent_handler",),
     ),
     (
-        "named_case_scope", "case_management",
+        "named_case_scope",
+        "case_management",
         "Resolve a request to one clearly referenced, authorized case; otherwise retain account scope.",
-        (), ("intent_handler", "chat_proxy"),
+        (),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "ownership_query", "company_operations",
+        "ownership_query",
+        "company_operations",
         "Answer who owns what in a Vienna company, including holders and ownership percentages.",
-        ("3", "4"), ("intent_handler",),
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "read_case_individual_dossier", "case_management",
-        "Show one specific person's profile or dossier on a case.", (), ("intent_handler",),
+        "read_case_individual_dossier",
+        "case_management",
+        "Show one specific person's profile or dossier on a case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "request_signature", "signatures_approvals",
+        "request_signature",
+        "signatures_approvals",
         "Prepare a signature request for a Vienna company document; sending remains approval-gated.",
-        ("3", "4"), ("intent_handler",),
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "retrieve_account_email_drafts", "communications",
+        "retrieve_account_email_drafts",
+        "communications",
         "List the authenticated user's active, unlinked email-agent drafts for the current app.",
-        (), ("intent_handler",),
+        (),
+        ("intent_handler",),
     ),
     (
-        "retrieve_case_email_drafts", "communications",
-        "List saved email drafts on a named case.", (), ("intent_handler",),
+        "retrieve_case_email_drafts",
+        "communications",
+        "List saved email drafts on a named case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "retrieve_case_email_timeline", "communications",
-        "Show the email timeline recorded on a named case.", (), ("intent_handler",),
+        "retrieve_case_email_timeline",
+        "communications",
+        "Show the email timeline recorded on a named case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "retrieve_case_individuals", "case_management",
-        "List the people on a case with their names and roles.", (), ("intent_handler",),
+        "retrieve_case_individuals",
+        "case_management",
+        "List the people on a case with their names and roles.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "retrieve_company_marketing_automations", "company_operations",
-        "List a Vienna company's running marketing automations.", ("3", "4"), ("intent_handler", "chat_proxy"),
+        "retrieve_company_marketing_automations",
+        "company_operations",
+        "List a Vienna company's running marketing automations.",
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_company_marketing_performance", "company_operations",
-        "Show a Vienna company's campaign and marketing performance.", ("3", "4"), ("intent_handler", "chat_proxy"),
+        "retrieve_company_marketing_performance",
+        "company_operations",
+        "Show a Vienna company's campaign and marketing performance.",
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_company_revenue", "company_operations",
-        "Show a Vienna company's revenue metrics or revenue trend.", ("3", "4"), ("intent_handler", "chat_proxy"),
+        "retrieve_company_revenue",
+        "company_operations",
+        "Show a Vienna company's revenue metrics or revenue trend.",
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_company_sales", "company_operations",
+        "retrieve_company_sales",
+        "company_operations",
         "Show a Vienna company's sales metrics.",
-        ("3", "4"), ("intent_handler", "chat_proxy"),
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_company_upcoming_campaigns", "company_operations",
-        "List scheduled or draft upcoming campaigns for a Vienna company.", ("3", "4"), ("intent_handler", "chat_proxy"),
+        "retrieve_company_upcoming_campaigns",
+        "company_operations",
+        "List scheduled or draft upcoming campaigns for a Vienna company.",
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_company_web_analytics", "company_operations",
-        "Show a Vienna company's website analytics.", ("3", "4"), ("intent_handler", "chat_proxy"),
+        "retrieve_company_web_analytics",
+        "company_operations",
+        "Show a Vienna company's website analytics.",
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "retrieve_inbox_review_items", "communications",
-        "Show inbox messages awaiting manual case assignment or review.", (), ("intent_handler",),
+        "retrieve_inbox_review_items",
+        "communications",
+        "Show inbox messages awaiting manual case assignment or review.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "retrieve_signature_status", "signatures_approvals",
-        "Show which Vienna signature requests are still waiting on signers.", ("3", "4"), ("intent_handler",),
+        "retrieve_signature_status",
+        "signatures_approvals",
+        "Show which Vienna signature requests are still waiting on signers.",
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "round_status_query", "company_operations",
-        "Answer the status of a Vienna company's current financing round.", ("3", "4"), ("intent_handler",),
+        "round_status_query",
+        "company_operations",
+        "Answer the status of a Vienna company's current financing round.",
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "safe_review_approval", "signatures_approvals",
-        "Approve or reject a drafted SAFE after the user reviews it.", ("3", "4"), ("intent_handler",),
+        "safe_review_approval",
+        "signatures_approvals",
+        "Approve or reject a drafted SAFE after the user reviews it.",
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "seriesai_campaign_read_refusal", "company_operations",
+        "seriesai_campaign_read_refusal",
+        "company_operations",
         "Route a campaign-read refusal to the authenticated company-data path.",
-        ("3", "4"), ("intent_handler", "chat_proxy"),
+        ("3", "4"),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "signature_approval", "signatures_approvals",
-        "Approve sending a prepared Vienna signature request.", ("3", "4"), ("intent_handler",),
+        "signature_approval",
+        "signatures_approvals",
+        "Approve sending a prepared Vienna signature request.",
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "start_workflow_gap_plan", "contracts_workflows",
+        "start_workflow_gap_plan",
+        "contracts_workflows",
         "Plan a workaround when no available operation can complete a concrete request.",
-        (), ("intent_handler", "chat_proxy"),
+        (),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "strategic_digest", "documents_research",
-        "Produce a strategic summary digest of a case.", (), ("intent_handler", "chat_proxy"),
+        "strategic_digest",
+        "documents_research",
+        "Produce a strategic summary digest of a case.",
+        (),
+        ("intent_handler", "chat_proxy"),
     ),
     (
-        "summarize_financing_document", "company_operations",
-        "Summarize a named Vienna company's latest financing document.", ("3", "4"), ("intent_handler",),
+        "summarize_financing_document",
+        "company_operations",
+        "Summarize a named Vienna company's latest financing document.",
+        ("3", "4"),
+        ("intent_handler",),
     ),
     (
-        "update_case_email_draft", "communications",
-        "Edit the subject, body, or recipients of a saved email draft on a case.", (), ("intent_handler",),
+        "update_case_email_draft",
+        "communications",
+        "Edit the subject, body, or recipients of a saved email draft on a case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "update_case_email_message", "communications",
-        "Update or retag one email message recorded on a case.", (), ("intent_handler",),
+        "update_case_email_message",
+        "communications",
+        "Update or retag one email message recorded on a case.",
+        (),
+        ("intent_handler",),
     ),
     (
-        "update_case_individual", "case_management",
-        "Edit a person's role, counsel, group, or importance on a case.", (), ("intent_handler",),
+        "update_case_individual",
+        "case_management",
+        "Edit a person's role, counsel, group, or importance on a case.",
+        (),
+        ("intent_handler",),
     ),
 )
 
@@ -1315,7 +1427,11 @@ def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is exp
             name = str(record.get("name") or record.get("functionId") or "").strip()
             if not name:
                 continue
-            record["surfaces"] = ["chat_run"]
+            declared_surfaces = record.get("surfaces")
+            record["surfaces"] = list(dict.fromkeys([
+                *(declared_surfaces if isinstance(declared_surfaces, list) else []),
+                "chat_run",
+            ]))
             compatibility = MCP_CALLER_COMPATIBILITY.get(name)
             if compatibility:
                 record["callerAliases"] = deepcopy(list(compatibility))
@@ -1372,9 +1488,15 @@ def universal_function_records(  # noqa: C901, PLR0912 - merge precedence is exp
                     "mcpCallable": True,
                 }
             )
+            if isinstance(schema, dict):
+                record["inputSchemasBySurface"] = {"mcp": deepcopy(schema)}
             merged[name] = record
             continue
         existing["inputSchema"] = record.get("inputSchema")
+        if isinstance(record.get("inputSchema"), dict):
+            schemas_by_surface = existing.setdefault("inputSchemasBySurface", {})
+            if isinstance(schemas_by_surface, dict):
+                schemas_by_surface["mcp"] = deepcopy(record["inputSchema"])
         existing["mcpDescription"] = record.get("description")
         if compatibility:
             existing["callerAliases"] = deepcopy(list(compatibility))
