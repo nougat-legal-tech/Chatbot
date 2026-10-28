@@ -170,7 +170,10 @@ _CHAT_RUN_TOOL_GUIDANCE = [
                 "type": "object",
                 "properties": {
                     "driveId": {"type": "string", "description": "A driveId returned by list_sharepoint_site_drives."},
-                    "itemId": {"type": "string", "description": "A folder itemId returned by a prior list_sharepoint_drive_children call."},
+                    "itemId": {
+                        "type": "string",
+                        "description": "A folder itemId returned by a prior list_sharepoint_drive_children call.",
+                    },
                 },
                 "required": ["driveId"],
             },
@@ -861,11 +864,7 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
         **_tool,
         "categoryId": categorize_function_name(_name),
         **(
-            {
-                "surfaces": list(
-                    dict.fromkeys([*(_tool.get("surfaces") or []), "chat_proxy"])
-                )
-            }
+            {"surfaces": list(dict.fromkeys([*(_tool.get("surfaces") or []), "chat_proxy"]))}
             if _name in _IN_HOUSE_FUNCTION_NAMES
             else {}
         ),
@@ -988,7 +987,8 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
                 "includeLifecycleSuggestions": "include_lifecycle_suggestions",
             },
             "notes": (
-                "actionItemId is an optional exact-item filter; resultLimit is capped at 100; openOnly defaults to true in the legacy "
+                "actionItemId is an optional exact-item filter; resultLimit is capped at 100; "
+                "openOnly defaults to true in the legacy "
                 "caller. Caller userId is authenticated context and is not forwarded as a Django query parameter."
             ),
         },
@@ -1157,6 +1157,13 @@ _ADDITIONAL_INTENT_HANDLER_ONLY_FUNCTION_RECORDS = (
         "delete_case_email_message",
         "communications",
         "Remove one named email from a case record.",
+        (),
+        ("intent_handler",),
+    ),
+    (
+        "delete_case_email_draft",
+        "communications",
+        "Delete one saved email draft on a named case.",
         (),
         ("intent_handler",),
     ),
@@ -1602,12 +1609,10 @@ def universal_function_records(  # noqa: C901, PLR0912, PLR0915 - explicit merge
             # An allowlisted map query omits unrelated chat-run records, but a
             # matching canonical record still owns the function's app scope,
             # operation IDs, and caller metadata.
-            source_record = FUNCTION_REGISTRY.get(name)
-            if source_record is not None:
-                existing = deepcopy(source_record)
-                existing["surfaces"] = list(
-                    dict.fromkeys([*(existing.get("surfaces") or []), "chat_run"])
-                )
+            canonical_record = FUNCTION_REGISTRY.get(name)
+            if canonical_record is not None:
+                existing = deepcopy(canonical_record)
+                existing["surfaces"] = list(dict.fromkeys([*(existing.get("surfaces") or []), "chat_run"]))
                 merged[name] = existing
         if existing is None:
             schema = record.get("inputSchema")

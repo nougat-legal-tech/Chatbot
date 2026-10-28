@@ -44,8 +44,9 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
         record for record in company_operations["functions"] if record["name"] == "get_seriesai_revenue_metrics"
     )
     assert revenue_metrics["appIds"] == ["3", "4", "5"]
+    case_management = asyncio.run(server.browse_function_map(object(), "case_management"))
     important_dates = next(
-        record for record in company_operations["functions"] if record["name"] == "list_case_important_dates"
+        record for record in case_management["functions"] if record["name"] == "list_case_important_dates"
     )
     timeline_alias = next(
         alias for alias in important_dates["callerAliases"] if alias["name"] == "retrieve_company_timeline"
@@ -185,7 +186,9 @@ def test_in_house_request_list_is_callable_and_remains_app_scoped_when_allowlist
     )["functions"][0]
     assert obligations["name"] == "retrieve_in_house_obligations"
     assert obligations["appIds"] == ("5",)
-    assert obligations["inputSchema"]["properties"]["case_id"]["type"] == "string"
+    case_id_schema = obligations["inputSchema"]["properties"]["case_id"]
+    assert {"type": "string"} in case_id_schema.get("anyOf", [case_id_schema])
+    assert "case_id" not in obligations["inputSchema"].get("required", [])
 
     for tool_name in (
         "retrieve_in_house_matter",
@@ -262,6 +265,7 @@ def test_action_item_filters_match_django_api_query_contract(monkeypatch):
         "path": "/api/action-items/",
         "params": {
             "caseId": "matter-1",
+            "itemId": None,
             "status": "open",
             "assignedTo": "user-1",
             "appId": "4",
