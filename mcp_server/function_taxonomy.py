@@ -111,6 +111,15 @@ _CATEGORY_BY_ID = {category["id"]: category for category in FUNCTION_CATEGORIES}
 
 _FUNCTION_GROUPS: tuple[dict[str, Any], ...] = (
     {
+        "id": "manage_workflow",
+        "label": "Manage workflows and decisions",
+        "description": "Advance, triage, approve, reject, complete, or otherwise resolve an existing workflow.",
+        "pattern": re.compile(
+            r"^(decide|approve|reject|transition|triage|complete|fulfill|void|advance|acknowledge|respond|resolve|dismiss|accept|decline|cancel)_",
+            re.I,
+        ),
+    },
+    {
         "id": "find_read",
         "label": "Find and read",
         "description": "Search, list, retrieve, inspect, or preview existing information.",
@@ -124,7 +133,7 @@ _FUNCTION_GROUPS: tuple[dict[str, Any], ...] = (
         "label": "Create and update",
         "description": "Create, edit, assign, send, or remove records and settings.",
         "pattern": re.compile(
-            r"^(create|add|update|edit|set|save|delete|remove|assign|send|submit|upload|bulk|archive|restore|connect|disconnect|invite|revoke|accept|decline)_",
+            r"^(create|add|update|edit|set|save|delete|remove|assign|send|submit|upload|bulk|archive|restore|connect|disconnect|invite|revoke)_",
             re.I,
         ),
     },

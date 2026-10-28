@@ -1,4 +1,5 @@
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
+const jwt = require('jsonwebtoken');
 const { SystemRoles } = require('librechat-data-provider');
 const { createUser, getUserById } = require('~/models');
 
@@ -48,7 +49,39 @@ const chatMintedJwtLogin = () =>
   new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.CHAT_SECRET || process.env.JWT_SECRET,
+      secretOrKeyProvider: (_request, rawToken, done) => {
+        const secrets = [
+          process.env.CHAT_SECRET,
+          process.env.CHAT_SECRET_PREVIOUS,
+          // JWT_SECRET is a legacy fallback only when the dedicated key ring
+          // has not been provisioned. Keep the ordinary LibreChat session key
+          // out of the chat-token ring after a dedicated CHAT_SECRET exists.
+          process.env.CHAT_SECRET ? null : process.env.JWT_SECRET,
+        ].filter((secret, index, values) => secret && values.indexOf(secret) === index);
+        if (!secrets.length) {
+          return done(new Error('Chat token signing secret is not configured'));
+        }
+
+        const decoded = jwt.decode(rawToken, { complete: true });
+        if (!decoded || decoded.header?.alg !== 'HS256') {
+          return done(new Error('Invalid chat token'));
+        }
+        for (const secret of secrets) {
+          try {
+            // Select the matching key here; Passport performs the full
+            // issuer, expiry, and claim validation with the selected key.
+            jwt.verify(rawToken, secret, {
+              algorithms: ['HS256'],
+              ignoreExpiration: true,
+              ignoreNotBefore: true,
+            });
+            return done(null, secret);
+          } catch (_error) {
+            // Continue through the configured current/previous key ring.
+          }
+        }
+        return done(new Error('Invalid chat token signature'));
+      },
       algorithms: ['HS256'],
     },
     async (payload, done) => {

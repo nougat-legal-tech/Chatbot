@@ -65,6 +65,20 @@ describe('markdown img', () => {
     expect(renderImage(src, [chart])).toHaveAttribute('src', src);
   });
 
+  it('preserves a signed JuristAI preview URL and its descriptive alt text', () => {
+    const src =
+      'https://api-dev.juristai.org/api/core/v/p/0123456789abcdef0123456789abcdef.abcdef0123456789abcdef0123456789.png?expires=1793212800';
+    const alt = 'Revenue by month, January through June';
+    const { container } = render(
+      <MediaContext.Provider value={{ attachmentsByName: buildAttachmentsByName([chart]) }}>
+        <MarkdownImage src={src} alt={alt} />
+      </MediaContext.Provider>,
+    );
+
+    expect(container.querySelector('img')).toHaveAttribute('src', src);
+    expect(container.querySelector('img')).toHaveAttribute('alt', alt);
+  });
+
   it('still prefixes the API base onto a bare /images/ path', () => {
     expect(renderImage('/images/user/pic.png')).toHaveAttribute(
       'src',

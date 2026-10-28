@@ -40,6 +40,21 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert "company's profile" in company_details["mcpDescription"]
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
     assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
+    important_dates = next(
+        record for record in company_operations["functions"] if record["name"] == "list_case_important_dates"
+    )
+    timeline_alias = next(
+        alias for alias in important_dates["callerAliases"] if alias["name"] == "retrieve_company_timeline"
+    )
+    assert timeline_alias["verification"] == "operation_id_match_only"
+    assert timeline_alias["defaultArguments"]["sort_order"] == "desc"
+    assert timeline_alias["argumentBindings"]["lifecycleStage"] == "stage"
+    deadlines_alias = next(
+        alias for alias in important_dates["callerAliases"] if alias["name"] == "retrieve_company_deadlines"
+    )
+    assert deadlines_alias["verification"] == "operation_id_match_only"
+    assert deadlines_alias["defaultArguments"]["upcoming_only"] is True
+    assert deadlines_alias["argumentBindings"]["openOnly"] == "open_only"
 
     integrations = asyncio.run(server.browse_function_map(object(), "integrations_admin"))
     sharepoint_drives = next(
@@ -134,6 +149,22 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert len(selected_subgroup["functions"]) == subgroup["count"]
     assert all(record["subcategoryId"] == subgroup["id"] for record in selected_subgroup["functions"])
 
+    contract_category = next(item for item in index["categories"] if item["id"] == "contracts_workflows")
+    workflow_group = next(
+        item for item in contract_category["subcategories"] if item["id"] == "manage_workflow"
+    )
+    workflow_tools = asyncio.run(
+        server.browse_function_map(object(), "contracts_workflows", subcategory_id="manage_workflow")
+    )
+    workflow_names = {record["name"] for record in workflow_tools["functions"]}
+    assert {
+        "triage_in_house_request",
+        "transition_in_house_request",
+        "transition_in_house_obligation",
+        "decide_in_house_review_finding",
+    } <= workflow_names
+    assert workflow_group["count"] == len(workflow_names)
+
 
 def test_in_house_request_list_is_callable_and_remains_app_scoped_when_allowlisted(monkeypatch):
     selected = asyncio.run(
@@ -142,7 +173,7 @@ def test_in_house_request_list_is_callable_and_remains_app_scoped_when_allowlist
     record = selected["functions"][0]
     assert record["name"] == "retrieve_in_house_requests"
     assert record["appIds"] == ("5",)
-    assert {"chat_run", "mcp"}.issubset(record["surfaces"])
+    assert {"chat_run", "chat_proxy", "mcp"}.issubset(record["surfaces"])
     assert record["mcpCallable"] is True
 
     obligations = asyncio.run(

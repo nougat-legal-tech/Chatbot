@@ -860,6 +860,15 @@ for _tool in (*_CHAT_RUN_TOOL_GUIDANCE, *_IN_HOUSE_CHAT_RUN_TOOL_GUIDANCE):
         "functionId": _name,
         **_tool,
         "categoryId": categorize_function_name(_name),
+        **(
+            {
+                "surfaces": list(
+                    dict.fromkeys([*(_tool.get("surfaces") or []), "chat_proxy"])
+                )
+            }
+            if _name in _IN_HOUSE_FUNCTION_NAMES
+            else {}
+        ),
         "appIds": (
             tuple(_tool.get("appIds", ()))
             if "appIds" in _tool
@@ -996,12 +1005,84 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "operationId": "retrieve-company-timeline",
             "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "operation_id_match_only",
+            "inputSchemasBySurface": {
+                "intent_handler": {
+                    "type": "object",
+                    "properties": {
+                        "appId": {"type": "string"},
+                        "userId": {"type": "string"},
+                        "caseId": {"type": "string"},
+                        "dateFrom": {"type": "string"},
+                        "dateTo": {"type": "string"},
+                        "lifecycleStage": {"type": "string"},
+                        "resultLimit": {"type": "integer", "minimum": 1},
+                    },
+                    "required": ["appId", "userId", "caseId"],
+                }
+            },
+            "trustedScopeBindings": {"case_id": "caseId", "app_id": "appId"},
+            "defaultArguments": {
+                "exclude_external_calendar": True,
+                "exclude_booking_projections": True,
+                "require_displayable": True,
+                "result_limit": 10,
+                "sort_order": "desc",
+            },
+            "argumentBindings": {
+                "dateFrom": "date_from",
+                "dateTo": "date_to",
+                "lifecycleStage": "stage",
+                "resultLimit": "result_limit",
+            },
+            "notes": (
+                "Candidate contract for the legacy lifecycle timeline read. Django authenticates the caller; "
+                "userId is not forwarded as a query parameter. Defaults exclude calendar and booking rows, "
+                "require displayable events, and preserve newest-first ordering. The shared endpoint caps "
+                "resultLimit at 100 while the legacy handler does not. The alias remains unverified until "
+                "that limit difference and lifecycle response plus Slack/email presentation parity are resolved."
+            ),
         },
         {
             "name": "retrieve_company_deadlines",
             "operationId": "retrieve-company-deadlines",
             "surfaces": ["intent_handler", "chat_proxy"],
             "verification": "operation_id_match_only",
+            "inputSchemasBySurface": {
+                "intent_handler": {
+                    "type": "object",
+                    "properties": {
+                        "appId": {"type": "string"},
+                        "userId": {"type": "string"},
+                        "caseId": {"type": "string"},
+                        "query": {"type": "string"},
+                        "dateFrom": {"type": "string"},
+                        "dateTo": {"type": "string"},
+                        "openOnly": {"type": "boolean"},
+                        "resultLimit": {"type": "integer", "minimum": 1},
+                    },
+                    "required": ["appId", "userId", "caseId"],
+                }
+            },
+            "trustedScopeBindings": {"case_id": "caseId", "app_id": "appId"},
+            "defaultArguments": {
+                "include_legacy_company_deadlines": True,
+                "upcoming_only": True,
+                "sort_order": "asc",
+            },
+            "argumentBindings": {
+                "dateFrom": "date_from",
+                "dateTo": "date_to",
+                "openOnly": "open_only",
+                "resultLimit": "result_limit",
+            },
+            "notes": (
+                "Candidate contract for the legacy upcoming-deadline read. Django authenticates the caller; "
+                "userId is not forwarded as a query parameter. For compliance-only requests, the agent should "
+                "set exclude_external_calendar=true; general schedule requests retain calendar events. The "
+                "shared endpoint caps resultLimit at 100 while the legacy handler does not, and returns a "
+                "generic items list rather than the legacy deadlines/email/Slack summary shape. Keep this alias "
+                "unverified until those request and response differences are reconciled."
+            ),
         },
     ),
     "list_my_cases": (
