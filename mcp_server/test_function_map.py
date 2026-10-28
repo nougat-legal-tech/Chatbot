@@ -40,6 +40,10 @@ def test_function_map_returns_category_table_of_contents_then_selected_schemas()
     assert "company's profile" in company_details["mcpDescription"]
     assert company_details["callerAliases"][0]["name"] == "retrieve_company_details"
     assert company_details["callerAliases"][0]["verification"] == "verified_shared_operation_id"
+    revenue_metrics = next(
+        record for record in company_operations["functions"] if record["name"] == "get_seriesai_revenue_metrics"
+    )
+    assert revenue_metrics["appIds"] == ["3", "4", "5"]
     important_dates = next(
         record for record in company_operations["functions"] if record["name"] == "list_case_important_dates"
     )

@@ -1623,6 +1623,11 @@ def universal_function_records(  # noqa: C901, PLR0912, PLR0915 - explicit merge
                     "mcpCallable": True,
                 }
             )
+            if name.startswith(("get_seriesai_", "list_seriesai_")):
+                # These are the existing company-workspace read tools. Keep
+                # their app restriction in the universal map so discovery can
+                # filter them before attaching schemas to a caller.
+                record["appIds"] = ["3", "4", "5"]
             if isinstance(schema, dict):
                 record["inputSchemasBySurface"] = {"mcp": deepcopy(schema)}
             merged[name] = record
