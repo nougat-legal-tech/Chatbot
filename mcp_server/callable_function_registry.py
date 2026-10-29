@@ -1038,8 +1038,10 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
                 "Candidate contract for the legacy lifecycle timeline read. Django authenticates the caller; "
                 "userId is not forwarded as a query parameter. Defaults exclude calendar and booking rows, "
                 "require displayable events, and preserve newest-first ordering. The shared endpoint caps "
-                "resultLimit at 100 while the legacy handler does not. The alias remains unverified until "
-                "that limit difference and lifecycle response plus Slack/email presentation parity are resolved."
+                "resultLimit at 100 while the legacy handler does not. The Django SeriesAI projection now adds "
+                "the legacy timeline envelope, Slack summary, and email_body/text rendering; keep this alias "
+                "unverified until the response regression passes and the limit and caller-output differences "
+                "are resolved."
             ),
         },
         {
