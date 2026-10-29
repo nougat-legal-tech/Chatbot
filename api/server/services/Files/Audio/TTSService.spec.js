@@ -123,12 +123,9 @@ describe('TTSService error logging', () => {
     axios.post.mockRejectedValue(new Error(`${canary} request config body`));
     resolveConfigSecret.mockReturnValue(undefined);
 
-    await expect(service.ttsRequest(
-      'openai',
-      { voices: [] },
-      { input: canary, voice: 'alloy' },
-      [],
-    )).rejects.toThrow('TTS provider request failed');
+    await expect(
+      service.ttsRequest('openai', { voices: [] }, { input: canary, voice: 'alloy' }, []),
+    ).rejects.toThrow('TTS provider request failed');
 
     expect(logAxiosError).toHaveBeenCalledTimes(1);
     const loggedError = logAxiosError.mock.calls[0][0];
@@ -139,12 +136,14 @@ describe('TTSService error logging', () => {
   it('redacts streamed speech text and provider error details from logs', async () => {
     const service = new TTSService();
     const canary = 'PRIVATE_MEETING_TRANSCRIPT_CANARY';
-    createChunkProcessor.mockReturnValue(jest.fn().mockResolvedValue([
-      { text: canary, isFinished: true },
-    ]));
+    createChunkProcessor.mockReturnValue(
+      jest.fn().mockResolvedValue([{ text: canary, isFinished: true }]),
+    );
     jest.spyOn(service, 'getProvider').mockReturnValue('openai');
     jest.spyOn(service, 'getVoice').mockResolvedValue('alloy');
-    jest.spyOn(service, 'ttsRequest').mockRejectedValue(new Error(`${canary} provider request body`));
+    jest
+      .spyOn(service, 'ttsRequest')
+      .mockRejectedValue(new Error(`${canary} provider request body`));
 
     const req = {
       config: { speech: { tts: { openai: { voices: ['alloy'] } } } },

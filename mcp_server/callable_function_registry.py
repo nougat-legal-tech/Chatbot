@@ -963,7 +963,10 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "name": "retrieve_company_action_items",
             "operationId": "retrieve-company-action-items",
             "surfaces": ["intent_handler", "chat_proxy"],
-            "verification": "operation_id_match_only",
+            # Verified 2026-10-28: same lifecycle suggestion source, open-only
+            # default/bindings below, and the live SeriesAI response carries the
+            # legacy actionItems/text/slackVisualSummary contract.
+            "verification": "verified_shared_operation_id",
             "inputSchemasBySurface": {
                 "intent_handler": {
                     "type": "object",
