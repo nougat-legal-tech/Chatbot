@@ -1083,14 +1083,18 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             },
             "notes": (
                 "Candidate contract for the legacy upcoming-deadline read. Django authenticates the caller; "
-                "userId is not forwarded as a query parameter. For compliance-only requests, the agent should "
-                "set exclude_external_calendar=true; general schedule requests retain calendar events. The "
+                "userId is not forwarded as a query parameter. Use AI interpretation of the user's question to "
+                "set exclude_external_calendar=true for compliance-only requests; general schedule requests "
+                "retain calendar events. The "
                 "shared endpoint's includeLegacyCompanyDeadlines projection merges app-scoped timeline and "
-                "embedded deadlines, filters external-calendar rows to the authenticated user, and defaults "
-                "undated embedded deadlines to seven days ahead. It still returns a generic items list rather "
-                "than the legacy deadlines/email/Slack summary shape, and caps resultLimit at 100 while the "
-                "legacy handler does not. Keep this alias unverified until inference, output, and limit parity "
-                "are proven."
+                "embedded deadlines, considers only dated timeline candidates, uses exact date/label duplicate "
+                "matching with embedded-record precedence, filters external-calendar rows to the authenticated "
+                "user, and defaults undated embedded deadlines to seven days ahead. The SeriesAI response "
+                "projection exposes the legacy deadlines/email/Slack summary shape, and the shared endpoint "
+                "supports any positive resultLimit as the legacy read does. The legacy Lambda's regex keyword "
+                "classification is replaced by the agent's contextual interpretation; keep this alias "
+                "unverified until that AI-selected compliance filter and authenticated ChatProxy/channel "
+                "parity are covered by integration evidence."
             ),
         },
     ),
