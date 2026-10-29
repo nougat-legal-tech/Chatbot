@@ -279,9 +279,10 @@ class TTSService {
 
     try {
       return await axios.post(url, data, options);
-    } catch (error) {
-      logAxiosError({ message: `TTS request failed for provider ${provider}:`, error });
-      throw error;
+    } catch {
+      const safeError = new Error('TTS provider request failed');
+      logAxiosError({ message: `TTS request failed for provider ${provider}`, error: safeError });
+      throw safeError;
     }
   }
 
@@ -348,10 +349,10 @@ class TTSService {
           if (chunk.isFinished) {
             break;
           }
-        } catch (innerError) {
+        } catch {
           logAxiosError({
-            message: `[TTS] Error processing manual update for chunk: ${chunk?.text?.substring(0, 50)}...`,
-            error: innerError,
+            message: '[TTS] Error processing manual update for chunk',
+            error: new Error('TTS chunk generation failed'),
           });
           if (!res.headersSent) {
             return res.status(500).end();
@@ -363,8 +364,11 @@ class TTSService {
       if (!res.headersSent) {
         res.end();
       }
-    } catch (error) {
-      logAxiosError({ message: '[TTS] Error creating the audio stream:', error });
+    } catch {
+      logAxiosError({
+        message: '[TTS] Error creating the audio stream',
+        error: new Error('TTS audio stream creation failed'),
+      });
       if (!res.headersSent) {
         return res.status(500).send('An error occurred');
       }
@@ -441,10 +445,10 @@ class TTSService {
               shouldContinue = false;
               break;
             }
-          } catch (innerError) {
+          } catch {
             logAxiosError({
-              message: `[TTS] Error processing audio stream update: ${update?.text?.substring(0, 50)}...`,
-              error: innerError,
+              message: '[TTS] Error processing audio stream update',
+              error: new Error('TTS chunk generation failed'),
             });
             if (!res.headersSent) {
               return res.status(500).end();
@@ -461,8 +465,11 @@ class TTSService {
       if (!res.headersSent) {
         res.end();
       }
-    } catch (error) {
-      logAxiosError({ message: '[TTS] Failed to fetch audio:', error });
+    } catch {
+      logAxiosError({
+        message: '[TTS] Failed to fetch audio',
+        error: new Error('TTS audio stream failed'),
+      });
       if (!res.headersSent) {
         res.status(500).end();
       }

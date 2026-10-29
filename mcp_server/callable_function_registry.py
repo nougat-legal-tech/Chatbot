@@ -1037,11 +1037,12 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "notes": (
                 "Candidate contract for the legacy lifecycle timeline read. Django authenticates the caller; "
                 "userId is not forwarded as a query parameter. Defaults exclude calendar and booking rows, "
-                "require displayable events, and preserve newest-first ordering. The shared endpoint caps "
-                "resultLimit at 100 while the legacy handler does not. The Django SeriesAI projection now adds "
-                "the legacy timeline envelope, Slack summary, and email_body/text rendering; keep this alias "
-                "unverified until the response regression passes and the limit and caller-output differences "
-                "are resolved."
+                "require displayable events, and preserve newest-first ordering. The legacy default limit is 10 "
+                "and permits larger explicit requests; the shared endpoint caps resultLimit at 100 and reports "
+                "totalCount/truncated. The Django SeriesAI projection regression passes for the legacy timeline "
+                "envelope, Slack summary, and email_body/text rendering. Keep this alias unverified for requests "
+                "above 100 and until authenticated ChatProxy/channel parity is proven. This read-only DynamoDB "
+                "query uses deterministic filtering and does not perform AI inference."
             ),
         },
         {
@@ -1081,9 +1082,12 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
                 "Candidate contract for the legacy upcoming-deadline read. Django authenticates the caller; "
                 "userId is not forwarded as a query parameter. For compliance-only requests, the agent should "
                 "set exclude_external_calendar=true; general schedule requests retain calendar events. The "
-                "shared endpoint caps resultLimit at 100 while the legacy handler does not, and returns a "
-                "generic items list rather than the legacy deadlines/email/Slack summary shape. Keep this alias "
-                "unverified until those request and response differences are reconciled."
+                "shared endpoint's includeLegacyCompanyDeadlines projection merges app-scoped timeline and "
+                "embedded deadlines, filters external-calendar rows to the authenticated user, and defaults "
+                "undated embedded deadlines to seven days ahead. It still returns a generic items list rather "
+                "than the legacy deadlines/email/Slack summary shape, and caps resultLimit at 100 while the "
+                "legacy handler does not. Keep this alias unverified until inference, output, and limit parity "
+                "are proven."
             ),
         },
     ),
