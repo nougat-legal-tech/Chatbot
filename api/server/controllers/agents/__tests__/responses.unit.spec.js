@@ -1012,6 +1012,27 @@ describe('createResponse controller', () => {
     );
   });
 
+  it('does not persist a stateless Responses turn when store is false', async () => {
+    const api = require('@librechat/api');
+    const { getConvo, getMessages, saveConvo, saveMessage } = require('~/models');
+    const request = {
+      ...req.body,
+      input: 'MEETING_TRANSCRIPT_CANARY_EPHEMERAL',
+      store: false,
+    };
+    api.validateResponseRequest.mockReturnValueOnce({ request });
+
+    await createResponse(req, res);
+
+    expect(api.initializeAgent).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ object: 'response' }));
+    expect(getConvo).not.toHaveBeenCalled();
+    expect(getMessages).not.toHaveBeenCalled();
+    expect(saveConvo).not.toHaveBeenCalled();
+    expect(saveMessage).not.toHaveBeenCalled();
+    expect(JSON.stringify(saveMessage.mock.calls)).not.toContain('MEETING_TRANSCRIPT_CANARY_EPHEMERAL');
+  });
+
   describe('execution envelope', () => {
     it('creates the portable run input before agent initialization', async () => {
       req.user = {
