@@ -1030,7 +1030,9 @@ describe('createResponse controller', () => {
     expect(getMessages).not.toHaveBeenCalled();
     expect(saveConvo).not.toHaveBeenCalled();
     expect(saveMessage).not.toHaveBeenCalled();
-    expect(JSON.stringify(saveMessage.mock.calls)).not.toContain('MEETING_TRANSCRIPT_CANARY_EPHEMERAL');
+    expect(JSON.stringify(saveMessage.mock.calls)).not.toContain(
+      'MEETING_TRANSCRIPT_CANARY_EPHEMERAL',
+    );
   });
 
   describe('execution envelope', () => {
