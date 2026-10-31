@@ -324,3 +324,37 @@ def test_important_date_filters_match_django_api_query_contract(monkeypatch):
             "resultLimit": 50,
         },
     }
+def test_deadline_acknowledgment_forwards_approval_to_shared_edit_api(monkeypatch):
+    calls = []
+
+    async def fake_post(ctx, path, payload):
+        calls.append((ctx, path, payload))
+        return payload
+
+    monkeypatch.setattr(server, "_post", fake_post)
+    ctx = object()
+    result = asyncio.run(
+        server.edit_case_important_dates(
+            ctx,
+            case_id="case-1",
+            operation="acknowledge",
+            deadline_id="deadline-1",
+            app_id="4",
+            approved=True,
+        )
+    )
+
+    assert result["approved"] is True
+    assert calls == [
+        (
+            ctx,
+            "/api/edit-case-important-dates/",
+            {
+                "caseId": "case-1",
+                "operation": "acknowledge",
+                "deadlineId": "deadline-1",
+                "appId": "4",
+                "approved": True,
+            },
+        )
+    ]

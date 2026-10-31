@@ -115,4 +115,25 @@ describe('requireJwtAuth with JuristAI chat-minted tokens', () => {
 
     expect(response.status).toBe(401);
   });
+
+  it('rejects a shared-secret token from a different issuer', async () => {
+    const meetingGrant = jwt.sign(
+      {
+        id: CHAT_PROXY_USER_ID,
+        username: EMAIL,
+        provider: 'cognito',
+        email: EMAIL,
+        sub: 'cognito-sub',
+      },
+      JWT_SECRET,
+      { algorithm: 'HS256', issuer: 'vienna-meeting', expiresIn: '1m' },
+    );
+
+    const response = await request(app)
+      .get('/api/agents/chat')
+      .set('authorization', `Bearer ${meetingGrant}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.userId).toBeUndefined();
+  });
 });

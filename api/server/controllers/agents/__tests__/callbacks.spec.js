@@ -545,6 +545,29 @@ describe('createToolEndCallback', () => {
       });
     });
 
+    it('does not persist tool results for a stateless Responses turn', async () => {
+      req.body = {
+        store: false,
+        conversationId: 'meeting-session-conversation',
+        messageId: 'meeting-turn',
+      };
+      const persistToolCall = createPersistAgentToolCall({ req });
+
+      await persistToolCall({
+        toolId: 'search-documents',
+        toolCallId: 'tool-meeting-1',
+        result: 'MEETING_TRANSCRIPT_CANARY_EPHEMERAL',
+        metadata: {
+          thread_id: 'meeting-session-conversation',
+          run_id: 'meeting-turn',
+        },
+        status: 'success',
+      });
+
+      expect(createToolCall).not.toHaveBeenCalled();
+      expect(getRetentionExpiry).not.toHaveBeenCalled();
+    });
+
     it('skips persistence when required identifiers are missing', async () => {
       const persistToolCall = createPersistAgentToolCall({ req: { user: {} } });
 

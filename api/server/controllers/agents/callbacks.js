@@ -1285,6 +1285,13 @@ function createPtcProgressEmitter({ res, streamId = null, jobCreatedAt }) {
  */
 function createPersistAgentToolCall({ req }) {
   return async ({ toolId, result, metadata }) => {
+    // Responses API `store:false` is a stateless turn contract. Tool results can
+    // contain user input or transcript-derived content, so do not create a
+    // standalone Mongo tool-call record when the response itself is not stored.
+    if (req?.body?.store === false) {
+      return;
+    }
+
     const userId = req?.user?.id;
     const conversationId =
       metadata?.thread_id ?? req?.body?.conversationId ?? req?.body?.conversation_id ?? null;

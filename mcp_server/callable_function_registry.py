@@ -906,6 +906,24 @@ MCP_CALLER_COMPATIBILITY: dict[str, tuple[dict[str, Any], ...]] = {
             "requiresCaseId": True,
         },
     ),
+    "edit_case_important_dates": (
+        {
+            "name": "deadline_acknowledgment",
+            "operationId": "deadline-acknowledgment",
+            "surfaces": ["intent_handler", "chat_proxy"],
+            "verification": "operation_id_match_only",
+            "appIds": ["3", "4"],
+            "trustedScopeBindings": {"case_id": "caseId", "app_id": "appId"},
+            "defaultArguments": {"operation": "acknowledge"},
+            "argumentBindings": {"deadlineId": "deadline_id"},
+            "requiresCaseId": True,
+            "invocationGuidance": (
+                "Acknowledge only the exact deadlineId in the trusted SeriesAI case and app scope. "
+                "Call first without approved to return a no-write preview; set approved=true only after "
+                "the user explicitly confirms that preview."
+            ),
+        },
+    ),
     "assign_action_item": (
         {
             "name": "assign_case_action_item",

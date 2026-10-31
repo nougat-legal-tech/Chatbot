@@ -1,7 +1,9 @@
+import mongoose from 'mongoose';
 import {
   resolveCheckpointerConfig,
   getApprovalTtlMs,
   getAgentCheckpointer,
+  LazyMongoSaver,
   captureAgentCheckpointGeneration,
   deleteAgentCheckpoint,
   deleteOwnedAgentCheckpoints,
@@ -76,6 +78,53 @@ describe('getAgentCheckpointer', () => {
   test('returns undefined when Mongo is not connected', async () => {
     // No mongoose connection is established in the unit test env (readyState 0).
     await expect(getAgentCheckpointer(undefined)).resolves.toBeUndefined();
+  });
+
+  test('keeps independently configured checkpoint stores alive at the same time', async () => {
+    const connection = mongoose.connection;
+    const readyState = Object.getOwnPropertyDescriptor(connection, 'readyState');
+    const database = Object.getOwnPropertyDescriptor(connection, 'db');
+    const fakeDb = {
+      databaseName: 'checkpointer-cache-test',
+      collection: () => ({ createIndex: jest.fn().mockResolvedValue('index') }),
+    };
+    const getClient = jest
+      .spyOn(connection, 'getClient')
+      .mockReturnValue({ db: () => fakeDb } as never);
+    const setup = jest.spyOn(LazyMongoSaver.prototype, 'setup').mockResolvedValue([]);
+    Object.defineProperty(connection, 'readyState', { configurable: true, value: 1 });
+    Object.defineProperty(connection, 'db', { configurable: true, value: fakeDb });
+
+    try {
+      const chat = await getAgentCheckpointer({
+        ttl: 600,
+        checkpointCollectionName: 'chat_checkpoints',
+        checkpointWritesCollectionName: 'chat_checkpoint_writes',
+      });
+      const meeting = await getAgentCheckpointer({
+        ttl: 120,
+        checkpointCollectionName: 'vienna_meeting_checkpoints',
+        checkpointWritesCollectionName: 'vienna_meeting_checkpoint_writes',
+      });
+      const chatAgain = await getAgentCheckpointer({
+        ttl: 600,
+        checkpointCollectionName: 'chat_checkpoints',
+        checkpointWritesCollectionName: 'chat_checkpoint_writes',
+      });
+
+      expect(chat).toBeInstanceOf(LazyMongoSaver);
+      expect(meeting).toBeInstanceOf(LazyMongoSaver);
+      expect(meeting).not.toBe(chat);
+      expect(chatAgain).toBe(chat);
+      expect(setup).toHaveBeenCalledTimes(2);
+    } finally {
+      setup.mockRestore();
+      getClient.mockRestore();
+      if (readyState) Object.defineProperty(connection, 'readyState', readyState);
+      else delete (connection as unknown as Record<string, unknown>).readyState;
+      if (database) Object.defineProperty(connection, 'db', database);
+      else delete (connection as unknown as Record<string, unknown>).db;
+    }
   });
 });
 

@@ -83,6 +83,10 @@ const chatMintedJwtLogin = () =>
         return done(new Error('Invalid chat token signature'));
       },
       algorithms: ['HS256'],
+      // Both Django chat_proxy and Chatbot's ActionService mint the ordinary
+      // user token with this issuer. Meeting-scoped assertions use a distinct
+      // issuer and must never authenticate against general chat routes.
+      issuer: 'librechat',
     },
     async (payload, done) => {
       try {

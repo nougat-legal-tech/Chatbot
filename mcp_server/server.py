@@ -2895,7 +2895,13 @@ async def delete_case_important_date(ctx: Context, case_id: str, deadline_id: st
 
 
 @mcp.tool(
-    description="Create, update, or delete case deadlines with legacy-style target resolution. Supply app_id when the case ID exists in multiple products."
+    description=(
+        "Create, update, delete, or acknowledge case deadlines with legacy-style target resolution. "
+        "For a preview-first change, call with dry_run=true and stop for user confirmation; "
+        "after the user confirms in a later message, repeat the request without dry_run. "
+        "For acknowledge, omit approved for a no-write preview and set approved=true only after confirmation. "
+        "Supply app_id when the case ID exists in multiple products."
+    )
 )
 async def edit_case_important_dates(
     ctx: Context,
@@ -2908,6 +2914,8 @@ async def edit_case_important_dates(
     notes: str | None = None,
     status: str | None = None,
     completed: bool | None = None,
+    approved: bool | None = None,
+    dry_run: bool | None = None,
     source: str | None = None,
     raw_entry: str | None = None,
     app_id: str | None = None,
@@ -2921,6 +2929,8 @@ async def edit_case_important_dates(
         ("notes", notes),
         ("status", status),
         ("completed", completed),
+        ("approved", approved),
+        ("dryRun", dry_run),
         ("source", source),
         ("rawEntry", raw_entry),
     )

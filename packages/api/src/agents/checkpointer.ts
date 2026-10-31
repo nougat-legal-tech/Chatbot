@@ -651,11 +651,12 @@ export async function hasDurableAgentInterruptCheckpoint(
 }
 
 /**
- * One saver per process, built lazily on first use so `setup()` (index creation)
- * runs exactly once. Keyed by the resolved settings so a config change rebuilds.
+ * One saver per resolved storage configuration, built lazily so `setup()` runs
+ * once for each collection/TTL tuple. Keeping multiple configurations alive is
+ * required when isolated runtimes (for example, meeting sessions) use their
+ * own checkpoint collections while ordinary agent runs are still active.
  */
-let saverPromise: Promise<MongoDBSaver | undefined> | undefined;
-let cachedKey: string | undefined;
+const saverPromises = new Map<string, Promise<MongoDBSaver | undefined>>();
 
 function settingsKey(resolved: ResolvedCheckpointerConfig): string {
   return `${resolved.checkpointCollectionName}|${resolved.checkpointWritesCollectionName}|${resolved.ttlSeconds}`;
@@ -684,9 +685,15 @@ export async function getAgentCheckpointer(
   }
 
   const key = settingsKey(resolved);
-  if (!saverPromise || cachedKey !== key) {
-    cachedKey = key;
-    saverPromise = buildMongoSaver(resolved);
+  let saverPromise = saverPromises.get(key);
+  if (!saverPromise) {
+    saverPromise = buildMongoSaver(resolved).then((saver) => {
+      if (!saver) {
+        saverPromises.delete(key);
+      }
+      return saver;
+    });
+    saverPromises.set(key, saverPromise);
   }
   return saverPromise;
 }
@@ -981,9 +988,8 @@ async function buildMongoSaver(
     logger.info('[checkpointer] Durable Mongo checkpointer ready for agent continuation');
     return saver;
   } catch (err) {
-    // Reset so a later run can retry rather than being stuck on a failed build.
-    saverPromise = undefined;
-    cachedKey = undefined;
+    // The caller evicts only this storage key so another configuration's
+    // in-flight or active saver remains available.
     logger.error(
       '[checkpointer] Failed to initialize Mongo checkpointer; falling back to in-process checkpointer:',
       err,
@@ -1221,6 +1227,5 @@ export async function deleteOwnedAgentCheckpoints(
 
 /** Test-only: drop the memoized saver so a fresh build is forced. */
 export function __resetCheckpointerForTests(): void {
-  saverPromise = undefined;
-  cachedKey = undefined;
+  saverPromises.clear();
 }
